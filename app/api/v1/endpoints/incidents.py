@@ -1,8 +1,10 @@
 from datetime import datetime
 
 from fastapi import APIRouter, Query, Response, status
+from sqlalchemy.exc import IntegrityError
 
 from app.api.deps import AdminUser, DBSession, OperatorOrAdmin
+from app.core.exceptions import ConflictError
 from app.models import Incident
 from app.models.enums import IncidentStatus, IncidentType, Severity
 from app.schemas.incident import IncidentCreate, IncidentRead, IncidentStatusUpdate, IncidentUpdate
@@ -58,7 +60,11 @@ def create_incident(payload: IncidentCreate, db: DBSession, _: OperatorOrAdmin) 
     validate_station_and_route(db, payload.route_id, payload.station_id)
     incident = Incident(**payload.model_dump())
     db.add(incident)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise ConflictError("Incident violates a database constraint.") from exc
     db.refresh(incident)
     return incident
 
@@ -74,7 +80,11 @@ def update_incident(
     validate_station_and_route(db, payload.route_id, payload.station_id)
     for field, value in payload.model_dump().items():
         setattr(incident, field, value)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise ConflictError("Incident violates a database constraint.") from exc
     db.refresh(incident)
     return incident
 
