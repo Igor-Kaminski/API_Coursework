@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from app.core.config import get_settings
 from app.db.base import Base
 from app.db.session import get_db_session
 from app.main import app
@@ -19,6 +20,8 @@ engine = create_engine(
     poolclass=StaticPool,
 )
 TestingSessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
+
+_settings = get_settings()
 
 
 @pytest.fixture(autouse=True)
@@ -54,9 +57,9 @@ def client(db_session: Session) -> Generator[TestClient, None, None]:
 
 @pytest.fixture()
 def admin_headers() -> dict[str, str]:
-    return {"X-API-Key": "changeme-admin-key"}
+    return {"X-API-Key": _settings.admin_api_key}
 
 
 @pytest.fixture()
 def operator_headers() -> dict[str, str]:
-    return {"X-API-Key": "changeme-operator-key"}
+    return {"X-API-Key": _settings.operator_api_key}
