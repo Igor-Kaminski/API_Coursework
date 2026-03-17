@@ -1,0 +1,597 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Count 6 /Kids [4 0 R 6 0 R 8 0 R 10 0 R 12 0 R 14 0 R] >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 5 0 R >>
+endobj
+5 0 obj
+<< /Length 1680 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(# Transport Reliability and Delay Analytics API) Tj
+T*
+() Tj
+T*
+(## Overview) Tj
+T*
+() Tj
+T*
+(This API manages a curated transport network and records operational incidents such as) Tj
+T*
+(delays,) Tj
+T*
+(cancellations, weather disruption, staff shortages, and signalling issues. It is designed) Tj
+T*
+(for) Tj
+T*
+(coursework assessment with a focus on realistic domain modelling, analytics, testing, and) Tj
+T*
+(explainable engineering decisions.) Tj
+T*
+() Tj
+T*
+(Base URL when running locally:) Tj
+T*
+() Tj
+T*
+(- http://127.0.0.1:8000) Tj
+T*
+() Tj
+T*
+(API prefix:) Tj
+T*
+() Tj
+T*
+(- /api/v1) Tj
+T*
+() Tj
+T*
+(## Authentication) Tj
+T*
+() Tj
+T*
+(Protected write endpoints use the `X-API-Key` header.) Tj
+T*
+() Tj
+T*
+(- Admin key: full write access to stations, routes, and incidents) Tj
+T*
+(- Operator key: create and update incidents only) Tj
+T*
+(- Public users: read-only access to GET endpoints) Tj
+T*
+() Tj
+T*
+(Example header:) Tj
+T*
+() Tj
+T*
+(X-API-Key: changeme-admin-key) Tj
+T*
+() Tj
+T*
+(## Status Codes) Tj
+T*
+() Tj
+T*
+(- 200 OK: successful read or update) Tj
+T*
+(- 201 Created: resource created) Tj
+T*
+(- 204 No Content: resource deleted) Tj
+T*
+(- 400 Bad Request: invalid query logic or invalid route/station combination) Tj
+T*
+(- 401 Unauthorized: missing or invalid API key) Tj
+T*
+(- 403 Forbidden: authenticated but insufficient role) Tj
+T*
+(- 404 Not Found: resource does not exist) Tj
+T*
+(- 409 Conflict: duplicate data or delete blocked by references) Tj
+T*
+(- 422 Unprocessable Entity: validation failure) Tj
+T*
+() Tj
+T*
+(## Utility Endpoint) Tj
+T*
+() Tj
+T*
+(GET /health) Tj
+T*
+() Tj
+T*
+(- Returns a simple readiness payload) Tj
+T*
+ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 7 0 R >>
+endobj
+7 0 obj
+<< /Length 1094 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+() Tj
+T*
+(Example response:) Tj
+T*
+() Tj
+T*
+({) Tj
+T*
+(  "status": "ok") Tj
+T*
+(}) Tj
+T*
+() Tj
+T*
+(## Stations) Tj
+T*
+() Tj
+T*
+(GET /api/v1/stations) Tj
+T*
+() Tj
+T*
+(- Optional filters: city, limit, offset) Tj
+T*
+() Tj
+T*
+(GET /api/v1/stations/{station_id}) Tj
+T*
+() Tj
+T*
+(POST /api/v1/stations) Tj
+T*
+() Tj
+T*
+(- Admin only) Tj
+T*
+(- Body fields: name, city, code) Tj
+T*
+() Tj
+T*
+(PUT /api/v1/stations/{station_id}) Tj
+T*
+() Tj
+T*
+(- Admin only) Tj
+T*
+() Tj
+T*
+(DELETE /api/v1/stations/{station_id}) Tj
+T*
+() Tj
+T*
+(- Admin only) Tj
+T*
+(- Returns 409 if the station is referenced by routes or incidents) Tj
+T*
+() Tj
+T*
+(Example create request:) Tj
+T*
+() Tj
+T*
+({) Tj
+T*
+(  "name": "Manchester Piccadilly",) Tj
+T*
+(  "city": "Manchester",) Tj
+T*
+(  "code": "MAN") Tj
+T*
+(}) Tj
+T*
+() Tj
+T*
+(## Routes) Tj
+T*
+() Tj
+T*
+(GET /api/v1/routes) Tj
+T*
+() Tj
+T*
+(- Optional filters: transport_mode, origin_station_id, destination_station_id, active,) Tj
+T*
+(limit, offset) Tj
+T*
+() Tj
+T*
+(GET /api/v1/routes/{route_id}) Tj
+T*
+() Tj
+T*
+(POST /api/v1/routes) Tj
+T*
+() Tj
+T*
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 9 0 R >>
+endobj
+9 0 obj
+<< /Length 1088 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(- Admin only) Tj
+T*
+(- Requires valid origin and destination station IDs) Tj
+T*
+() Tj
+T*
+(PUT /api/v1/routes/{route_id}) Tj
+T*
+() Tj
+T*
+(- Admin only) Tj
+T*
+() Tj
+T*
+(DELETE /api/v1/routes/{route_id}) Tj
+T*
+() Tj
+T*
+(- Admin only) Tj
+T*
+(- Returns 409 if incidents still reference the route) Tj
+T*
+() Tj
+T*
+(Example create request:) Tj
+T*
+() Tj
+T*
+({) Tj
+T*
+(  "name": "Northern Express",) Tj
+T*
+(  "origin_station_id": 1,) Tj
+T*
+(  "destination_station_id": 2,) Tj
+T*
+(  "transport_mode": "train",) Tj
+T*
+(  "active": true) Tj
+T*
+(}) Tj
+T*
+() Tj
+T*
+(## Incidents) Tj
+T*
+() Tj
+T*
+(GET /api/v1/incidents) Tj
+T*
+() Tj
+T*
+(Supported filters:) Tj
+T*
+() Tj
+T*
+(- route_id) Tj
+T*
+(- station_id) Tj
+T*
+(- incident_type) Tj
+T*
+(- severity) Tj
+T*
+(- status) Tj
+T*
+(- from) Tj
+T*
+(- to) Tj
+T*
+(- min_delay) Tj
+T*
+(- limit) Tj
+T*
+(- offset) Tj
+T*
+() Tj
+T*
+(GET /api/v1/incidents/{incident_id}) Tj
+T*
+() Tj
+T*
+(POST /api/v1/incidents) Tj
+T*
+() Tj
+T*
+(- Operator or admin) Tj
+T*
+() Tj
+T*
+(PUT /api/v1/incidents/{incident_id}) Tj
+T*
+() Tj
+T*
+(- Operator or admin) Tj
+T*
+ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 11 0 R >>
+endobj
+11 0 obj
+<< /Length 1484 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+() Tj
+T*
+(PATCH /api/v1/incidents/{incident_id}/status) Tj
+T*
+() Tj
+T*
+(- Operator or admin) Tj
+T*
+(- Use to move an incident through open, monitoring, and resolved) Tj
+T*
+() Tj
+T*
+(DELETE /api/v1/incidents/{incident_id}) Tj
+T*
+() Tj
+T*
+(- Admin only) Tj
+T*
+() Tj
+T*
+(Example create request:) Tj
+T*
+() Tj
+T*
+({) Tj
+T*
+(  "route_id": 1,) Tj
+T*
+(  "station_id": 1,) Tj
+T*
+(  "incident_type": "delay",) Tj
+T*
+(  "severity": "medium",) Tj
+T*
+(  "status": "open",) Tj
+T*
+(  "title": "Platform congestion",) Tj
+T*
+(  "description": "Passenger crowding delayed dispatch by 12 minutes.",) Tj
+T*
+(  "delay_minutes": 12,) Tj
+T*
+(  "occurred_at": "2026-03-10T07:45:00Z",) Tj
+T*
+(  "resolved_at": null) Tj
+T*
+(}) Tj
+T*
+() Tj
+T*
+(Example response:) Tj
+T*
+() Tj
+T*
+({) Tj
+T*
+(  "id": 1,) Tj
+T*
+(  "route_id": 1,) Tj
+T*
+(  "station_id": 1,) Tj
+T*
+(  "incident_type": "delay",) Tj
+T*
+(  "severity": "medium",) Tj
+T*
+(  "status": "open",) Tj
+T*
+(  "title": "Platform congestion",) Tj
+T*
+(  "description": "Passenger crowding delayed dispatch by 12 minutes.",) Tj
+T*
+(  "delay_minutes": 12,) Tj
+T*
+(  "occurred_at": "2026-03-10T07:45:00Z",) Tj
+T*
+(  "resolved_at": null,) Tj
+T*
+(  "created_at": "2026-03-17T12:00:00Z",) Tj
+T*
+(  "updated_at": "2026-03-17T12:00:00Z") Tj
+T*
+(}) Tj
+T*
+() Tj
+T*
+(## Analytics) Tj
+T*
+() Tj
+T*
+(Analytics default to the last 30 days if `from` and `to` are not supplied.) Tj
+T*
+() Tj
+T*
+(GET /api/v1/analytics/routes/{route_id}/overview) Tj
+T*
+ET
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 13 0 R >>
+endobj
+13 0 obj
+<< /Length 1583 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+() Tj
+T*
+(Returns:) Tj
+T*
+() Tj
+T*
+(- incident_count) Tj
+T*
+(- average_delay_minutes) Tj
+T*
+(- cancellation_count) Tj
+T*
+(- severe_incident_count) Tj
+T*
+(- reliability_score) Tj
+T*
+() Tj
+T*
+(Reliability score is a documented heuristic:) Tj
+T*
+() Tj
+T*
+(- type weight + severity weight + capped delay contribution per incident) Tj
+T*
+(- penalties are averaged across the selected time window) Tj
+T*
+(- score is clamped between 0 and 100) Tj
+T*
+(- this is an incident-based comparative metric, not an official operator KPI) Tj
+T*
+() Tj
+T*
+(GET /api/v1/analytics/routes/{route_id}/worst-time) Tj
+T*
+() Tj
+T*
+(Returns the hour of day with the highest disruption score for a route.) Tj
+T*
+() Tj
+T*
+(GET /api/v1/analytics/stations/top-delayed) Tj
+T*
+() Tj
+T*
+(- Query params: limit, from, to) Tj
+T*
+(- Returns stations ranked by total delay minutes and incident count) Tj
+T*
+() Tj
+T*
+(GET /api/v1/analytics/incidents/by-hour) Tj
+T*
+() Tj
+T*
+(- Query params: from, to) Tj
+T*
+(- Returns incident volume and average delay grouped by hour of day) Tj
+T*
+() Tj
+T*
+(Example analytics response:) Tj
+T*
+() Tj
+T*
+({) Tj
+T*
+(  "route_id": 1,) Tj
+T*
+(  "from_date": "2026-03-10T00:00:00Z",) Tj
+T*
+(  "to_date": "2026-03-10T23:59:59Z",) Tj
+T*
+(  "incident_count": 3,) Tj
+T*
+(  "average_delay_minutes": 26.5,) Tj
+T*
+(  "cancellation_count": 1,) Tj
+T*
+(  "severe_incident_count": 2,) Tj
+T*
+(  "reliability_score": 73.0) Tj
+T*
+(}) Tj
+T*
+() Tj
+T*
+(## OpenAPI And Interactive Docs) Tj
+T*
+() Tj
+T*
+(FastAPI automatically exposes:) Tj
+T*
+() Tj
+T*
+(- /docs for Swagger UI) Tj
+T*
+ET
+endstream
+endobj
+14 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 15 0 R >>
+endobj
+15 0 obj
+<< /Length 186 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(- /openapi.json for the OpenAPI schema) Tj
+T*
+() Tj
+T*
+(These should be used during development and can also support the coursework demonstration.) Tj
+T*
+ET
+endstream
+endobj
+xref
+0 16
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000148 00000 n 
+0000000218 00000 n 
+0000000344 00000 n 
+0000002076 00000 n 
+0000002202 00000 n 
+0000003348 00000 n 
+0000003474 00000 n 
+0000004614 00000 n 
+0000004742 00000 n 
+0000006279 00000 n 
+0000006407 00000 n 
+0000008043 00000 n 
+0000008171 00000 n 
+trailer
+<< /Size 16 /Root 1 0 R >>
+startxref
+8409
+%%EOF

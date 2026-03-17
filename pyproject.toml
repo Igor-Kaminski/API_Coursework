@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "transport-reliability-api"
+version = "0.1.0"
+description = "Transport reliability and delay analytics API built with FastAPI and PostgreSQL."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "alembic",
+  "fastapi",
+  "psycopg[binary]",
+  "pydantic-settings",
+  "sqlalchemy",
+  "uvicorn[standard]",
+]
+
+[project.optional-dependencies]
+dev = [
+  "httpx",
+  "pytest",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
