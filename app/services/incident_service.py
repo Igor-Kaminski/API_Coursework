@@ -106,9 +106,19 @@ def list_incidents(
     return db.scalars(stmt).all()
 
 
+def _strip_tz(dt: datetime) -> datetime:
+    return dt.replace(tzinfo=None) if dt.tzinfo else dt
+
+
 def apply_status_patch(incident: Incident, status: IncidentStatus, resolved_at: datetime | None) -> Incident:
+    if status == IncidentStatus.resolved:
+        if resolved_at is None:
+            raise BadRequestError("resolved incidents must include resolved_at.")
+        if _strip_tz(resolved_at) < _strip_tz(incident.occurred_at):
+            raise BadRequestError("resolved_at must be greater than or equal to occurred_at.")
+    else:
+        resolved_at = None
+
     incident.status = status
     incident.resolved_at = resolved_at
-    if incident.status == IncidentStatus.resolved and incident.resolved_at is None:
-        raise BadRequestError("resolved incidents must include resolved_at.")
     return incident
