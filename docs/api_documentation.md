@@ -225,6 +225,7 @@ Commands:
 python scripts/import_stations.py path/to/stations.csv
 python scripts/import_routes.py path/to/routes.csv
 python scripts/import_journeys.py path/to/journeys.xml
+python scripts/import_darwin_snapshot.py --snapshot-path /path/to/snapshot.gz --max-services 20000
 ```
 
 Supported source formats:
@@ -232,6 +233,21 @@ Supported source formats:
 - stations: CSV, JSON
 - routes: CSV, JSON
 - journeys: CSV, JSON, XML
+
+Darwin snapshot notes:
+
+- the Darwin importer can fetch from FTP or import from a previously downloaded local snapshot file
+- it parses Darwin `schedule` and `TS` documents and converts them into normalized station, route, and journey records
+- when KB enrichment is not available yet, station reference rows are created with Darwin `TIPLOC` codes as both the code and fallback display name
+
+Example local snapshot import:
+
+```bash
+DATABASE_URL="postgresql+psycopg://postgres@/rail_api?host=/run/postgresql" \
+./.venv/bin/python scripts/import_darwin_snapshot.py \
+  --snapshot-path "/home/igor/rail_test/downloads/20260319_161557_snapshot.gz" \
+  --max-services 20000
+```
 
 ## Swagger Documentation
 

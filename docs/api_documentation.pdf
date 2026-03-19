@@ -245,7 +245,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 15 0 R >> >> /Contents 12 0 R >>
 endobj
 12 0 obj
-<< /Length 2280 >>
+<< /Length 2325 >>
 stream
 BT
 /F1 11 Tf
@@ -285,17 +285,17 @@ BT
 1 0 0 1 50 318 Tm (python scripts/import_stations.py path/to/stations.csv) Tj
 1 0 0 1 50 304 Tm (python scripts/import_routes.py path/to/routes.csv) Tj
 1 0 0 1 50 290 Tm (python scripts/import_journeys.py path/to/journeys.xml) Tj
-1 0 0 1 50 276 Tm (```) Tj
-1 0 0 1 50 262 Tm () Tj
-1 0 0 1 50 248 Tm (Supported source formats:) Tj
+1 0 0 1 50 276 Tm (python scripts/import_darwin_snapshot.py --snapshot-path /path/to/snapshot.gz) Tj
+1 0 0 1 50 262 Tm (--max-services 20000) Tj
+1 0 0 1 50 248 Tm (```) Tj
 1 0 0 1 50 234 Tm () Tj
-1 0 0 1 50 220 Tm (- stations: CSV, JSON) Tj
-1 0 0 1 50 206 Tm (- routes: CSV, JSON) Tj
-1 0 0 1 50 192 Tm (- journeys: CSV, JSON, XML) Tj
-1 0 0 1 50 178 Tm () Tj
-1 0 0 1 50 164 Tm (## Swagger Documentation) Tj
+1 0 0 1 50 220 Tm (Supported source formats:) Tj
+1 0 0 1 50 206 Tm () Tj
+1 0 0 1 50 192 Tm (- stations: CSV, JSON) Tj
+1 0 0 1 50 178 Tm (- routes: CSV, JSON) Tj
+1 0 0 1 50 164 Tm (- journeys: CSV, JSON, XML) Tj
 1 0 0 1 50 150 Tm () Tj
-1 0 0 1 50 136 Tm (FastAPI also exposes interactive documentation at:) Tj
+1 0 0 1 50 136 Tm (Darwin snapshot notes:) Tj
 1 0 0 1 50 122 Tm () Tj
 ET
 endstream
@@ -304,12 +304,32 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 15 0 R >> >> /Contents 14 0 R >>
 endobj
 14 0 obj
-<< /Length 82 >>
+<< /Length 1269 >>
 stream
 BT
 /F1 11 Tf
-1 0 0 1 50 780 Tm (- `/docs`) Tj
-1 0 0 1 50 766 Tm (- `/redoc`) Tj
+1 0 0 1 50 780 Tm (- the Darwin importer can fetch from FTP or import from a previously downloaded local) Tj
+1 0 0 1 50 766 Tm (snapshot file) Tj
+1 0 0 1 50 752 Tm (- it parses Darwin `schedule` and `TS` documents and converts them into normalized) Tj
+1 0 0 1 50 738 Tm (station, route, and journey records) Tj
+1 0 0 1 50 724 Tm (- when KB enrichment is not available yet, station reference rows are created with) Tj
+1 0 0 1 50 710 Tm (Darwin `TIPLOC` codes as both the code and fallback display name) Tj
+1 0 0 1 50 696 Tm () Tj
+1 0 0 1 50 682 Tm (Example local snapshot import:) Tj
+1 0 0 1 50 668 Tm () Tj
+1 0 0 1 50 654 Tm (```bash) Tj
+1 0 0 1 50 640 Tm (DATABASE_URL="postgresql+psycopg://postgres@/rail_api?host=/run/postgresql" \\) Tj
+1 0 0 1 50 626 Tm (./.venv/bin/python scripts/import_darwin_snapshot.py \\) Tj
+1 0 0 1 50 612 Tm (--snapshot-path "/home/igor/rail_test/downloads/20260319_161557_snapshot.gz" \\) Tj
+1 0 0 1 50 598 Tm (--max-services 20000) Tj
+1 0 0 1 50 584 Tm (```) Tj
+1 0 0 1 50 570 Tm () Tj
+1 0 0 1 50 556 Tm (## Swagger Documentation) Tj
+1 0 0 1 50 542 Tm () Tj
+1 0 0 1 50 528 Tm (FastAPI also exposes interactive documentation at:) Tj
+1 0 0 1 50 514 Tm () Tj
+1 0 0 1 50 500 Tm (- `/docs`) Tj
+1 0 0 1 50 486 Tm (- `/redoc`) Tj
 ET
 endstream
 endobj
@@ -331,11 +351,11 @@ xref
 0000006599 00000 n 
 0000008627 00000 n 
 0000008756 00000 n 
-0000011089 00000 n 
-0000011218 00000 n 
-0000011351 00000 n 
+0000011134 00000 n 
+0000011263 00000 n 
+0000012585 00000 n 
 trailer
 << /Size 16 /Root 1 0 R >>
 startxref
-11422
+12656
 %%EOF

@@ -148,8 +148,31 @@ Available helper scripts:
 - `python scripts/import_stations.py path/to/stations.csv`
 - `python scripts/import_routes.py path/to/routes.csv`
 - `python scripts/import_journeys.py path/to/journeys.xml`
+- `python scripts/import_darwin_snapshot.py --snapshot-path /path/to/snapshot.gz --max-services 20000`
 
 The import services support simplified `CSV`, `JSON`, and, for journeys, `XML` inputs. Journey imports normalize status values and derive `delay_minutes` during ingestion where possible.
+
+The Darwin importer supports two modes:
+
+- fetch the latest FTP snapshot using local Darwin FTP environment variables
+- import from an already-downloaded local snapshot file, which is useful when FTP access works better outside the app environment
+
+Example using a local snapshot file:
+
+```bash
+DATABASE_URL="postgresql+psycopg://postgres@/rail_api?host=/run/postgresql" \
+./.venv/bin/python scripts/import_darwin_snapshot.py \
+  --snapshot-path "/home/igor/rail_test/downloads/20260319_161557_snapshot.gz" \
+  --max-services 20000
+```
+
+Current local Darwin load achieved:
+
+- `935` stations
+- `2,911` routes
+- `18,588` journey records
+
+These imported station records currently use Darwin `TIPLOC` codes as the reference key when KB enrichment has not yet been applied.
 
 ## Testing
 
@@ -163,7 +186,7 @@ Current coverage focuses on:
 
 - incident API permissions and lifecycle behavior
 - analytics endpoint responses
-- station, route, and journey import logic
+- station, route, journey, and Darwin snapshot import logic
 
 ## Coursework Deliverables
 
