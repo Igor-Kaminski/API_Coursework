@@ -230,6 +230,19 @@ Example response:
 
 Returns the average delay in minutes for journeys with known delay values.
 
+### GET `/api/v1/analytics/routes/{route_id}/cancellation-rate`
+
+Returns the cancellation rate for a route, including total journeys and cancelled journeys.
+
+### GET `/api/v1/analytics/routes/{route_id}/delay-distribution`
+
+Returns a coursework-friendly delay distribution for a route using buckets:
+
+- `0-4`
+- `5-9`
+- `10-14`
+- `15+`
+
 ### GET `/api/v1/analytics/routes/by-code/{route_code}/reliability`
 
 Returns route reliability using the public route code instead of the internal numeric ID.
@@ -238,13 +251,31 @@ Returns route reliability using the public route code instead of the internal nu
 
 Returns average delay using the public route code instead of the internal numeric ID.
 
+### GET `/api/v1/analytics/routes/by-code/{route_code}/cancellation-rate`
+
+Returns cancellation rate using the public route code instead of the internal numeric ID.
+
+### GET `/api/v1/analytics/routes/by-code/{route_code}/delay-distribution`
+
+Returns the delay distribution using the public route code instead of the internal numeric ID.
+
+### GET `/api/v1/analytics/routes/top-delayed`
+
+Returns the most delayed routes ranked by average delay. Supports:
+
+- `limit`
+- `min_journeys`
+
+### GET `/api/v1/analytics/routes/top-cancelled`
+
+Returns the most cancellation-prone routes ranked by cancellation percentage. Supports:
+
+- `limit`
+- `min_journeys`
+
 ### GET `/api/v1/analytics/delay-patterns/hourly`
 
 Returns average delay grouped by departure hour.
-
-### GET `/api/v1/analytics/delay-patterns/daily`
-
-Returns average delay grouped by weekday.
 
 ### GET `/api/v1/analytics/stations/hotspots`
 
@@ -253,6 +284,14 @@ Returns the busiest delay hotspots based on delayed journeys touching a station.
 ### GET `/api/v1/analytics/incidents/frequency`
 
 Returns incident counts bucketed by report date.
+
+### GET `/api/v1/analytics/incidents/severity-breakdown`
+
+Returns incident counts grouped by severity.
+
+### GET `/api/v1/analytics/incidents/status-breakdown`
+
+Returns incident counts grouped by lifecycle status.
 
 ### GET `/api/v1/analytics/delay-reasons/common`
 
