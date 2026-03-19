@@ -90,3 +90,21 @@ def test_dtd_reference_service_collapses_alias_tiplocs_by_crs(db_session) -> Non
     assert route.destination_station_id == canonical.id
     assert route.name == "Beckenham Junction to Beckenham Junction"
     assert renamed_routes == 1
+
+
+def test_dtd_reference_service_backfills_safe_tiploc_for_crs_station(db_session) -> None:
+    station = Station(name="Leeds", code="LDS", crs_code="LDS", tiploc_code=None)
+    db_session.add(station)
+    db_session.commit()
+
+    service = DTDReferenceService()
+    records = service._parse_msn_records(
+        "A    LEEDS                         2LEEDS  LDS   LDS12345 60000 5                 \n"
+    )
+    station_result, renamed_routes = service.enrich_database(db_session, records)
+
+    db_session.refresh(station)
+
+    assert station_result.updated == 1
+    assert station.tiploc_code == "LEEDS"
+    assert renamed_routes == 0

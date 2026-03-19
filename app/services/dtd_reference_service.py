@@ -41,9 +41,35 @@ class DTDReferenceService:
             for value in db.scalars(select(Station.tiploc_code).where(Station.tiploc_code.is_not(None)))
             if value
         }
-        filtered_records = [
-            record for record in records if record.tiploc_code and record.tiploc_code in existing_tiplocs
-        ]
+        crs_to_tiplocs: dict[str, set[str]] = {}
+        for record in records:
+            if not record.crs_code or not record.tiploc_code:
+                continue
+            crs_to_tiplocs.setdefault(record.crs_code, set()).add(record.tiploc_code)
+
+        eligible_crs_targets = {
+            value
+            for value in db.scalars(
+                select(Station.crs_code).where(
+                    Station.crs_code.is_not(None),
+                    Station.tiploc_code.is_(None),
+                )
+            )
+            if value
+        }
+
+        filtered_records = []
+        for record in records:
+            if record.tiploc_code and record.tiploc_code in existing_tiplocs:
+                filtered_records.append(record)
+                continue
+
+            if (
+                record.crs_code
+                and record.crs_code in eligible_crs_targets
+                and len(crs_to_tiplocs.get(record.crs_code, set())) == 1
+            ):
+                filtered_records.append(record)
         self._collapse_alias_stations(db, filtered_records)
         filtered_records = self._deduplicate_records(filtered_records)
 
