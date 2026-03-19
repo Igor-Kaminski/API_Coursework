@@ -1,15 +1,33 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.database import get_db_session
+from app.core.security import AuthContext, Role, require_roles
 from app.models.route import Route
-from app.schemas.route import RouteRead
+from app.models.station import Station
+from app.schemas.route import RouteCreate, RouteRead, RouteUpdate
 
 router = APIRouter(prefix="/routes", tags=["routes"])
 DBSession = Annotated[Session, Depends(get_db_session)]
+AdminRole = Annotated[AuthContext, Depends(require_roles(Role.ADMIN))]
+
+
+def validate_station_ids(db: Session, origin_station_id: int, destination_station_id: int) -> None:
+    if db.get(Station, origin_station_id) is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="origin station not found",
+        )
+
+    if db.get(Station, destination_station_id) is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="destination station not found",
+        )
 
 
 @router.get("", response_model=list[RouteRead])
@@ -48,3 +66,78 @@ def get_route(route_id: int, db: DBSession) -> Route:
             detail="route not found",
         )
     return route
+
+
+@router.post("", response_model=RouteRead, status_code=status.HTTP_201_CREATED)
+def create_route(payload: RouteCreate, db: DBSession, _: AdminRole) -> Route:
+    validate_station_ids(db, payload.origin_station_id, payload.destination_station_id)
+
+    route = Route(**payload.model_dump())
+    db.add(route)
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="duplicate route definition",
+        ) from exc
+
+    refreshed = db.scalar(
+        select(Route)
+        .options(joinedload(Route.origin_station), joinedload(Route.destination_station))
+        .where(Route.id == route.id)
+    )
+    assert refreshed is not None
+    return refreshed
+
+
+@router.patch("/{route_id}", response_model=RouteRead)
+def update_route(
+    route_id: int,
+    payload: RouteUpdate,
+    db: DBSession,
+    _: AdminRole,
+) -> Route:
+    route = db.get(Route, route_id)
+    if route is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="route not found",
+        )
+
+    for field, value in payload.model_dump(exclude_unset=True).items():
+        setattr(route, field, value)
+
+    validate_station_ids(db, route.origin_station_id, route.destination_station_id)
+
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="duplicate route definition",
+        ) from exc
+
+    refreshed = db.scalar(
+        select(Route)
+        .options(joinedload(Route.origin_station), joinedload(Route.destination_station))
+        .where(Route.id == route.id)
+    )
+    assert refreshed is not None
+    return refreshed
+
+
+@router.delete("/{route_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_route(route_id: int, db: DBSession, _: AdminRole) -> Response:
+    route = db.get(Route, route_id)
+    if route is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="route not found",
+        )
+
+    db.delete(route)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
