@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db_session
 from app.models.route import Route
-from app.schemas.analytics import RouteReliabilityRead
+from app.schemas.analytics import RouteAverageDelayRead, RouteReliabilityRead
 from app.services.analytics_service import AnalyticsService
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
@@ -25,3 +25,9 @@ def _require_route(db: Session, route_id: int) -> None:
 def get_route_reliability(route_id: int, db: DBSession) -> RouteReliabilityRead:
     _require_route(db, route_id)
     return analytics_service.get_route_reliability(db, route_id)
+
+
+@router.get("/routes/{route_id}/average-delay", response_model=RouteAverageDelayRead)
+def get_route_average_delay(route_id: int, db: DBSession) -> RouteAverageDelayRead:
+    _require_route(db, route_id)
+    return analytics_service.get_route_average_delay(db, route_id)
