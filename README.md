@@ -110,6 +110,45 @@ Do not commit real credentials. Keep only placeholder values in tracked files.
 
 The MCP server uses the same database and API-key values. No extra secrets are required.
 
+## Render Deployment
+
+This repository is now prepared for Render deployment using the included `render.yaml` blueprint.
+
+What the blueprint provisions:
+
+- a Python web service for the FastAPI app
+- a managed PostgreSQL database
+- generated API keys for admin, operator, and user roles
+- automatic `alembic upgrade head` before the app starts
+
+Basic steps on Render:
+
+1. Push this repository to GitHub.
+2. In Render, choose `New` -> `Blueprint`.
+3. Connect the repository and select this project.
+4. Render will create the web service and PostgreSQL database from `render.yaml`.
+5. After the first deploy, open the deployed `/health` and `/docs` URLs to verify the app is live.
+
+Important deployment note:
+
+- the hosted PostgreSQL database will start empty
+- the schema will be created automatically by Alembic
+- you still need to load your station, route, journey, and incident data into the hosted database if you want the deployed API to show real analytics
+
+Recommended post-deploy workflow:
+
+1. deploy the blueprint
+2. confirm `/health` returns `{"status":"ok","database":"ok"}`
+3. run your import scripts against the hosted `DATABASE_URL`
+4. verify `/api/v1/stations`, `/api/v1/routes`, `/api/v1/incidents`, and analytics endpoints
+
+If you do not want to use the blueprint, you can still create the Render PostgreSQL database and web service manually, then use the same build and start commands:
+
+```bash
+pip install -e .
+alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```
+
 ## Authentication Model
 
 The coursework uses a deliberately simple role model based on the `X-API-Key` header:
