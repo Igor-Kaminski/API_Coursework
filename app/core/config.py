@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     app_version: str = "0.1.0"
     debug: bool = False
     api_v1_prefix: str = "/api/v1"
+    database_echo: bool = False
     database_url: str = Field(
         default="postgresql+psycopg://postgres:postgres@localhost:5432/rail_api"
     )
