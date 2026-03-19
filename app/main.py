@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from app.core.config import get_settings
+from app.routers.stations import router as stations_router
 
 settings = get_settings()
 
@@ -9,6 +10,8 @@ app = FastAPI(
     version=settings.app_version,
     debug=settings.debug,
 )
+
+app.include_router(stations_router, prefix=settings.api_v1_prefix)
 
 
 @app.get("/", tags=["meta"])
