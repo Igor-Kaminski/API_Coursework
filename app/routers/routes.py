@@ -40,6 +40,7 @@ def list_routes(
     origin: str | None = Query(default=None),
     destination: str | None = Query(default=None),
     operator_name: str | None = Query(default=None),
+    is_active: bool | None = Query(default=None),
 ) -> list[Route]:
     origin_station_alias = aliased(Station)
     destination_station_alias = aliased(Station)
@@ -56,6 +57,8 @@ def list_routes(
         query = query.where(func.lower(Route.name).contains(name.lower()))
     if operator_name:
         query = query.where(func.lower(Route.operator_name) == operator_name.lower())
+    if is_active is not None:
+        query = query.where(Route.is_active == is_active)
     if origin:
         query = query.join(origin_station_alias, Route.origin_station).where(
             or_(

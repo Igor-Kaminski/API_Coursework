@@ -31,7 +31,7 @@ def _require_route(db: Session, route_id: int) -> None:
 
 
 def _get_route_by_code(db: Session, route_code: str) -> Route:
-    route = db.scalar(select(Route).where(Route.code == route_code))
+    route = db.scalar(select(Route).where(Route.code.ilike(route_code)))
     if route is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

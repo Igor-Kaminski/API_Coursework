@@ -57,8 +57,24 @@ def client(db_session: Session) -> Generator[TestClient, None, None]:
 
 @pytest.fixture
 def seeded_reference_data(db_session: Session) -> dict[str, int]:
-    leeds = Station(name="Leeds", code="LDS", city="Leeds", latitude=Decimal("53.794"), longitude=Decimal("-1.548"))
-    york = Station(name="York", code="YRK", city="York", latitude=Decimal("53.958"), longitude=Decimal("-1.093"))
+    leeds = Station(
+        name="Leeds",
+        code="LDS",
+        crs_code="LDS",
+        tiploc_code="LEEDS",
+        city="Leeds",
+        latitude=Decimal("53.794"),
+        longitude=Decimal("-1.548"),
+    )
+    york = Station(
+        name="York",
+        code="YRK",
+        crs_code="YRK",
+        tiploc_code="YORK",
+        city="York",
+        latitude=Decimal("53.958"),
+        longitude=Decimal("-1.093"),
+    )
     db_session.add_all([leeds, york])
     db_session.flush()
 

@@ -1,7 +1,8 @@
+from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db_session
@@ -48,8 +49,30 @@ def list_incidents(
     db: DBSession,
     limit: int = Query(default=100, ge=1, le=500),
     offset: int = Query(default=0, ge=0),
+    route_id: int | None = Query(default=None),
+    station_id: int | None = Query(default=None),
+    incident_type: str | None = Query(default=None),
+    severity: str | None = Query(default=None),
+    status_value: str | None = Query(default=None, alias="status"),
+    reported_from: datetime | None = Query(default=None),
+    reported_to: datetime | None = Query(default=None),
 ) -> list[Incident]:
-    query = select(Incident).order_by(Incident.reported_at.desc()).limit(limit).offset(offset)
+    query = select(Incident)
+    if route_id is not None:
+        query = query.where(Incident.route_id == route_id)
+    if station_id is not None:
+        query = query.where(Incident.station_id == station_id)
+    if incident_type:
+        query = query.where(func.lower(Incident.incident_type) == incident_type.lower())
+    if severity:
+        query = query.where(func.lower(Incident.severity) == severity.lower())
+    if status_value:
+        query = query.where(func.lower(Incident.status) == status_value.lower())
+    if reported_from:
+        query = query.where(Incident.reported_at >= reported_from)
+    if reported_to:
+        query = query.where(Incident.reported_at <= reported_to)
+    query = query.order_by(Incident.reported_at.desc()).limit(limit).offset(offset)
     return list(db.scalars(query))
 
 

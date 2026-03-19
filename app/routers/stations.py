@@ -23,6 +23,8 @@ def list_stations(
     code: str | None = Query(default=None),
     name: str | None = Query(default=None),
     city: str | None = Query(default=None),
+    crs_code: str | None = Query(default=None),
+    tiploc_code: str | None = Query(default=None),
 ) -> list[Station]:
     query = select(Station)
     if code:
@@ -31,6 +33,10 @@ def list_stations(
         query = query.where(func.lower(Station.name).contains(name.lower()))
     if city:
         query = query.where(func.lower(Station.city).contains(city.lower()))
+    if crs_code:
+        query = query.where(func.lower(Station.crs_code) == crs_code.lower())
+    if tiploc_code:
+        query = query.where(func.lower(Station.tiploc_code) == tiploc_code.lower())
     query = query.order_by(Station.name).limit(limit).offset(offset)
     return list(db.scalars(query))
 
