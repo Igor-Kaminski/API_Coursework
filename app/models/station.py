@@ -13,6 +13,8 @@ class Station(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     code: Mapped[str | None] = mapped_column(String(32), unique=True, nullable=True)
+    tiploc_code: Mapped[str | None] = mapped_column(String(32), unique=True, nullable=True)
+    crs_code: Mapped[str | None] = mapped_column(String(3), unique=True, nullable=True)
     city: Mapped[str | None] = mapped_column(String(255), nullable=True)
     latitude: Mapped[Decimal | None] = mapped_column(Numeric(9, 6), nullable=True)
     longitude: Mapped[Decimal | None] = mapped_column(Numeric(9, 6), nullable=True)

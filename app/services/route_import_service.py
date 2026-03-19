@@ -4,7 +4,7 @@ from collections.abc import Iterable
 from decimal import Decimal
 from pathlib import Path
 
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from app.models.route import Route
@@ -73,7 +73,15 @@ class RouteImportService:
         raise ValueError(f"unsupported route source format: {path.suffix}")
 
     def _get_station_by_code(self, db: Session, station_code: str) -> Station:
-        station = db.scalar(select(Station).where(Station.code == station_code))
+        station = db.scalar(
+            select(Station).where(
+                or_(
+                    Station.code == station_code,
+                    Station.tiploc_code == station_code,
+                    Station.crs_code == station_code,
+                )
+            )
+        )
         if station is None:
             raise ValueError(f"station with code '{station_code}' was not found")
         return station

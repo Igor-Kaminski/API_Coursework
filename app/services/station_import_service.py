@@ -27,6 +27,8 @@ class StationImportService:
                 station = Station(
                     name=record.name,
                     code=record.code,
+                    tiploc_code=record.tiploc_code,
+                    crs_code=record.crs_code,
                     city=record.city,
                     latitude=record.latitude,
                     longitude=record.longitude,
@@ -37,7 +39,15 @@ class StationImportService:
                 continue
 
             changed = False
-            for field in ("name", "code", "city", "latitude", "longitude"):
+            for field in (
+                "name",
+                "code",
+                "tiploc_code",
+                "crs_code",
+                "city",
+                "latitude",
+                "longitude",
+            ):
                 value = getattr(record, field)
                 if value is not None and getattr(station, field) != value:
                     setattr(station, field, value)
@@ -64,6 +74,20 @@ class StationImportService:
         db: Session,
         record: StationImportRecord,
     ) -> Station | None:
+        if record.tiploc_code:
+            station = db.scalar(select(Station).where(Station.tiploc_code == record.tiploc_code))
+            if station is not None:
+                return station
+
+            station = db.scalar(select(Station).where(Station.code == record.tiploc_code))
+            if station is not None:
+                return station
+
+        if record.crs_code:
+            station = db.scalar(select(Station).where(Station.crs_code == record.crs_code))
+            if station is not None:
+                return station
+
         if record.code:
             return db.scalar(select(Station).where(Station.code == record.code))
 
@@ -91,6 +115,8 @@ class StationImportService:
         return StationImportRecord(
             name=self._pick_string(payload, "name", "station_name", "stationName"),
             code=self._pick_optional_string(payload, "code", "crs", "station_code"),
+            tiploc_code=self._pick_optional_string(payload, "tiploc_code", "tiploc", "tpl"),
+            crs_code=self._pick_optional_string(payload, "crs_code", "crs", "code"),
             city=self._pick_optional_string(payload, "city", "locality"),
             latitude=self._pick_decimal(payload, "latitude", "lat"),
             longitude=self._pick_decimal(payload, "longitude", "lon", "lng"),

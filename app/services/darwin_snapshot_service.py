@@ -115,7 +115,14 @@ class DarwinSnapshotService:
                 if code in unique_codes:
                     continue
                 unique_codes.add(code)
-                records.append(StationImportRecord(name=code, code=code))
+                records.append(
+                    StationImportRecord(
+                        name=code,
+                        code=None,
+                        tiploc_code=code,
+                        crs_code=None,
+                    )
+                )
         records.sort(key=lambda record: record.code or record.name)
         return records
 

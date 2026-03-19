@@ -14,6 +14,8 @@ class ImportResult:
 class StationImportRecord:
     name: str
     code: str | None = None
+    tiploc_code: str | None = None
+    crs_code: str | None = None
     city: str | None = None
     latitude: Decimal | None = None
     longitude: Decimal | None = None
