@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     database_url: str = Field(
         default="postgresql+psycopg://postgres:postgres@localhost:5432/rail_api"
     )
+    admin_api_key: str = "change-me-admin-key"
+    operator_api_key: str = "change-me-operator-key"
+    user_api_key: str = "change-me-user-key"
 
     model_config = SettingsConfigDict(
         env_file=".env",
