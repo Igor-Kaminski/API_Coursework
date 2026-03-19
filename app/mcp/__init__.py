@@ -1,3 +1,1 @@
-from app.mcp.server import main, mcp
-
-__all__ = ["main", "mcp"]
+"""MCP integration package for the rail coursework project."""
