@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db_session
+from app.core.security import AuthContext, Role, require_roles
 from app.models.incident import Incident
 from app.models.route import Route
 from app.models.station import Station
@@ -12,6 +13,14 @@ from app.schemas.incident import IncidentCreate, IncidentRead, IncidentUpdate
 
 router = APIRouter(prefix="/incidents", tags=["incidents"])
 DBSession = Annotated[Session, Depends(get_db_session)]
+AuthenticatedRole = Annotated[
+    AuthContext,
+    Depends(require_roles(Role.ADMIN, Role.OPERATOR, Role.USER)),
+]
+OperatorRole = Annotated[
+    AuthContext,
+    Depends(require_roles(Role.ADMIN, Role.OPERATOR)),
+]
 
 
 def validate_related_entities(db: Session, route_id: int | None, station_id: int | None) -> None:
@@ -56,7 +65,7 @@ def get_incident(incident_id: int, db: DBSession) -> Incident:
 
 
 @router.post("", response_model=IncidentRead, status_code=status.HTTP_201_CREATED)
-def create_incident(payload: IncidentCreate, db: DBSession) -> Incident:
+def create_incident(payload: IncidentCreate, db: DBSession, _: AuthenticatedRole) -> Incident:
     validate_related_entities(db, payload.route_id, payload.station_id)
 
     incident = Incident(**payload.model_dump())
@@ -67,7 +76,12 @@ def create_incident(payload: IncidentCreate, db: DBSession) -> Incident:
 
 
 @router.patch("/{incident_id}", response_model=IncidentRead)
-def update_incident(incident_id: int, payload: IncidentUpdate, db: DBSession) -> Incident:
+def update_incident(
+    incident_id: int,
+    payload: IncidentUpdate,
+    db: DBSession,
+    _: OperatorRole,
+) -> Incident:
     incident = db.get(Incident, incident_id)
     if incident is None:
         raise HTTPException(
@@ -87,7 +101,7 @@ def update_incident(incident_id: int, payload: IncidentUpdate, db: DBSession) ->
 
 
 @router.delete("/{incident_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_incident(incident_id: int, db: DBSession) -> Response:
+def delete_incident(incident_id: int, db: DBSession, _: OperatorRole) -> Response:
     incident = db.get(Incident, incident_id)
     if incident is None:
         raise HTTPException(
