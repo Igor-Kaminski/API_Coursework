@@ -36,3 +36,18 @@ class IncidentFrequencyPointRead(BaseModel):
 class DelayReasonFrequencyRead(BaseModel):
     reason: str
     total_occurrences: int
+
+
+class UnresolvedLocationRead(BaseModel):
+    station_id: int
+    station_name: str
+    unresolved_route_count: int
+
+
+class RouteNameCoverageRead(BaseModel):
+    total_routes: int
+    fully_human_readable_routes: int
+    partially_unresolved_routes: int
+    fully_unresolved_routes: int
+    unresolved_location_count: int
+    top_unresolved_locations: list[UnresolvedLocationRead]

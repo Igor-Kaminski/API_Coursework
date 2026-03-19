@@ -10,9 +10,11 @@ from app.schemas.analytics import (
     DelayPatternPointRead,
     DelayReasonFrequencyRead,
     IncidentFrequencyPointRead,
+    RouteNameCoverageRead,
     RouteAverageDelayRead,
     RouteReliabilityRead,
     StationHotspotRead,
+    UnresolvedLocationRead,
 )
 
 
@@ -169,3 +171,61 @@ class AnalyticsService:
         ]
         reasons.sort(key=lambda item: (-item.total_occurrences, item.reason))
         return reasons[:limit]
+
+    def get_route_name_coverage(
+        self,
+        db: Session,
+        limit: int = 10,
+    ) -> RouteNameCoverageRead:
+        routes = list(
+            db.scalars(
+                select(Route).options(
+                    joinedload(Route.origin_station),
+                    joinedload(Route.destination_station),
+                )
+            )
+        )
+
+        fully_human_readable = 0
+        partially_unresolved = 0
+        fully_unresolved = 0
+        unresolved_counts: dict[tuple[int, str], int] = defaultdict(int)
+
+        for route in routes:
+            origin_resolved = route.origin_station.crs_code is not None
+            destination_resolved = route.destination_station.crs_code is not None
+
+            if origin_resolved and destination_resolved:
+                fully_human_readable += 1
+                continue
+
+            if origin_resolved or destination_resolved:
+                partially_unresolved += 1
+            else:
+                fully_unresolved += 1
+
+            if not origin_resolved:
+                unresolved_counts[(route.origin_station.id, route.origin_station.name)] += 1
+            if not destination_resolved:
+                unresolved_counts[(route.destination_station.id, route.destination_station.name)] += 1
+
+        top_unresolved_locations = [
+            UnresolvedLocationRead(
+                station_id=station_id,
+                station_name=station_name,
+                unresolved_route_count=count,
+            )
+            for (station_id, station_name), count in unresolved_counts.items()
+        ]
+        top_unresolved_locations.sort(
+            key=lambda item: (-item.unresolved_route_count, item.station_name)
+        )
+
+        return RouteNameCoverageRead(
+            total_routes=len(routes),
+            fully_human_readable_routes=fully_human_readable,
+            partially_unresolved_routes=partially_unresolved,
+            fully_unresolved_routes=fully_unresolved,
+            unresolved_location_count=len(unresolved_counts),
+            top_unresolved_locations=top_unresolved_locations[:limit],
+        )

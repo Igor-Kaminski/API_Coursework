@@ -9,6 +9,7 @@ from app.schemas.analytics import (
     DelayPatternPointRead,
     DelayReasonFrequencyRead,
     IncidentFrequencyPointRead,
+    RouteNameCoverageRead,
     RouteAverageDelayRead,
     RouteReliabilityRead,
     StationHotspotRead,
@@ -66,3 +67,14 @@ def get_common_delay_reasons(
     limit: int = 10,
 ) -> list[DelayReasonFrequencyRead]:
     return analytics_service.get_common_delay_reasons(db, limit=limit)
+
+
+@router.get(
+    "/reference-data/route-name-coverage",
+    response_model=RouteNameCoverageRead,
+)
+def get_route_name_coverage(
+    db: DBSession,
+    limit: int = 10,
+) -> RouteNameCoverageRead:
+    return analytics_service.get_route_name_coverage(db, limit=limit)
