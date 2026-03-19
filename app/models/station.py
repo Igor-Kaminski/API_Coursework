@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from sqlalchemy import DateTime, Numeric, String, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 
@@ -26,4 +26,19 @@ class Station(Base):
         server_default=func.now(),
         onupdate=func.now(),
         nullable=False,
+    )
+
+    origin_routes: Mapped[list["Route"]] = relationship(
+        "Route",
+        back_populates="origin_station",
+        foreign_keys="Route.origin_station_id",
+    )
+    destination_routes: Mapped[list["Route"]] = relationship(
+        "Route",
+        back_populates="destination_station",
+        foreign_keys="Route.destination_station_id",
+    )
+    incidents: Mapped[list["Incident"]] = relationship(
+        "Incident",
+        back_populates="station",
     )

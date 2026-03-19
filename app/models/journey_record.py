@@ -1,7 +1,7 @@
 from datetime import date, datetime
 
 from sqlalchemy import Date, DateTime, Enum, ForeignKey, Integer, String, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 
@@ -50,4 +50,9 @@ class JourneyRecord(Base):
         server_default=func.now(),
         onupdate=func.now(),
         nullable=False,
+    )
+
+    route: Mapped["Route"] = relationship(
+        "Route",
+        back_populates="journey_records",
     )
