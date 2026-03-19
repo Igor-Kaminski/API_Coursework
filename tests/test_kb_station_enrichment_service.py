@@ -10,6 +10,8 @@ KB_XML = """<?xml version="1.0" encoding="UTF-8"?>
     <CrsCode>WOK</CrsCode>
     <TiplocCode>WOKING</TiplocCode>
     <LocalityName>Woking</LocalityName>
+    <Latitude>51.3198</Latitude>
+    <Longitude>-0.5569</Longitude>
   </Station>
 </Stations>
 """
@@ -44,5 +46,7 @@ def test_kb_enrichment_updates_station_and_route_name(db_session) -> None:
     assert origin.code == "WOK"
     assert origin.tiploc_code == "WOKING"
     assert origin.crs_code == "WOK"
+    assert str(origin.latitude) == "51.319800"
+    assert str(origin.longitude) == "-0.556900"
     assert renamed_routes == 1
     assert route.name == "Woking to EXETRSD"

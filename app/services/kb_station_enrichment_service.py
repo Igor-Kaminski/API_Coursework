@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import zipfile
 from base64 import b64encode
+from decimal import Decimal
 from io import BytesIO
 from pathlib import Path
 from urllib.request import Request, urlopen
@@ -105,6 +106,8 @@ class KBStationEnrichmentService:
         tiploc_code = self._find_text(element, "tiploc", "tiploccode", "tiploc_code", "tpl")
         crs_code = self._find_text(element, "crs", "crscode", "crs_code", "threealphacode")
         city = self._find_text(element, "city", "locality", "localityname", "town")
+        latitude = self._find_decimal(element, "latitude", "lat")
+        longitude = self._find_decimal(element, "longitude", "lon", "lng")
 
         if not name or not (tiploc_code or crs_code):
             return None
@@ -115,6 +118,8 @@ class KBStationEnrichmentService:
             tiploc_code=tiploc_code,
             crs_code=crs_code,
             city=city,
+            latitude=latitude,
+            longitude=longitude,
         )
 
     def _record_from_mapping(self, payload: dict[str, object]) -> StationImportRecord | None:
@@ -130,6 +135,8 @@ class KBStationEnrichmentService:
         tiploc_code = self._pick_mapping_value(lower_map, "tiploc", "tiploccode", "tiploc_code", "tpl")
         crs_code = self._pick_mapping_value(lower_map, "crs", "crscode", "crs_code", "threealphacode")
         city = self._pick_mapping_value(lower_map, "city", "locality", "localityname", "town")
+        latitude = self._pick_mapping_decimal(lower_map, "latitude", "lat")
+        longitude = self._pick_mapping_decimal(lower_map, "longitude", "lon", "lng")
 
         if not name or not (tiploc_code or crs_code):
             return None
@@ -140,6 +147,8 @@ class KBStationEnrichmentService:
             tiploc_code=tiploc_code,
             crs_code=crs_code,
             city=city,
+            latitude=latitude,
+            longitude=longitude,
         )
 
     def _find_text(self, element, *candidate_names: str) -> str | None:
@@ -162,6 +171,18 @@ class KBStationEnrichmentService:
             if text:
                 return text
         return None
+
+    def _find_decimal(self, element, *candidate_names: str) -> Decimal | None:
+        value = self._find_text(element, *candidate_names)
+        if value is None:
+            return None
+        return Decimal(value)
+
+    def _pick_mapping_decimal(self, payload: dict[str, object], *keys: str) -> Decimal | None:
+        value = self._pick_mapping_value(payload, *keys)
+        if value is None:
+            return None
+        return Decimal(value)
 
     def _local_name(self, tag: str) -> str:
         return tag.split("}", 1)[1] if "}" in tag else tag
