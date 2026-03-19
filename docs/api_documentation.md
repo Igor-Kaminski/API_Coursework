@@ -215,6 +215,15 @@ Returns incident counts bucketed by report date.
 
 Returns the most common delay reasons found in imported journey data.
 
+### GET `/api/v1/analytics/reference-data/route-name-coverage`
+
+Returns a reference-data quality snapshot showing:
+
+- total routes
+- how many routes are fully human-readable
+- how many routes still contain unresolved location codes
+- the top unresolved station/location codes still affecting route names
+
 ## Import Scripts
 
 The API does not read external feeds during public requests. Import data first, then query the API.
@@ -248,6 +257,23 @@ DATABASE_URL="postgresql+psycopg://postgres@/rail_api?host=/run/postgresql" \
   --snapshot-path "/home/igor/rail_test/downloads/20260319_161557_snapshot.gz" \
   --max-services 20000
 ```
+
+Current local enrichment snapshot:
+
+- `2,993` stations total
+- `2,610` stations with `city`
+- `2,912` stations with `tiploc_code`
+- `2,610` stations with both `latitude` and `longitude`
+- `2,899` routes total
+- `1,817` routes with approximate `distance_km`
+
+Current route-name coverage snapshot:
+
+- `1,959` fully human-readable routes
+- `820` partially unresolved routes
+- `120` fully unresolved routes
+
+Remaining unresolved names are mainly operational timing points, depots, sidings, or junction aliases rather than ordinary passenger stations.
 
 ## Swagger Documentation
 

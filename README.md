@@ -174,6 +174,29 @@ Current local Darwin load achieved:
 
 These imported station records currently use Darwin `TIPLOC` codes as the reference key when KB enrichment has not yet been applied.
 
+## Current Data Coverage
+
+After Darwin, KB, and timetable-reference enrichment, the current local database contains:
+
+- `2,993` stations
+- `2,899` routes
+- `18,588` journey records
+
+Reference data coverage:
+
+- `2,610 / 2,993` stations have a populated `city`
+- `2,912 / 2,993` stations have a populated `tiploc_code`
+- `2,610 / 2,993` stations have both `latitude` and `longitude`
+- `1,817 / 2,899` routes have an approximate `distance_km`
+
+Route name coverage snapshot from `GET /api/v1/analytics/reference-data/route-name-coverage`:
+
+- `1,959 / 2,899` routes are fully human-readable
+- `820 / 2,899` are partially unresolved
+- `120 / 2,899` remain fully unresolved
+
+The remaining unresolved locations are mostly non-passenger timing points, junctions, depots, or operational aliases rather than ordinary public stations. That is why some route names still contain infrastructure-style codes.
+
 ## Testing
 
 Run the automated tests with:
@@ -186,7 +209,7 @@ Current coverage focuses on:
 
 - incident API permissions and lifecycle behavior
 - analytics endpoint responses
-- station, route, journey, and Darwin snapshot import logic
+- station, route, journey, Darwin snapshot, KB enrichment, and reference-data enrichment logic
 
 ## Coursework Deliverables
 

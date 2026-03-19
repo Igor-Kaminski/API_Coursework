@@ -3,10 +3,10 @@
 << /Type /Catalog /Pages 2 0 R >>
 endobj
 2 0 obj
-<< /Type /Pages /Count 6 /Kids [3 0 R 5 0 R 7 0 R 9 0 R 11 0 R 13 0 R] >>
+<< /Type /Pages /Count 7 /Kids [3 0 R 5 0 R 7 0 R 9 0 R 11 0 R 13 0 R 15 0 R] >>
 endobj
 3 0 obj
-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 15 0 R >> >> /Contents 4 0 R >>
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 17 0 R >> >> /Contents 4 0 R >>
 endobj
 4 0 obj
 << /Length 2053 >>
@@ -65,7 +65,7 @@ ET
 endstream
 endobj
 5 0 obj
-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 15 0 R >> >> /Contents 6 0 R >>
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 17 0 R >> >> /Contents 6 0 R >>
 endobj
 6 0 obj
 << /Length 1849 >>
@@ -124,7 +124,7 @@ ET
 endstream
 endobj
 7 0 obj
-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 15 0 R >> >> /Contents 8 0 R >>
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 17 0 R >> >> /Contents 8 0 R >>
 endobj
 8 0 obj
 << /Length 1885 >>
@@ -183,7 +183,7 @@ ET
 endstream
 endobj
 9 0 obj
-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 15 0 R >> >> /Contents 10 0 R >>
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 17 0 R >> >> /Contents 10 0 R >>
 endobj
 10 0 obj
 << /Length 1975 >>
@@ -242,10 +242,10 @@ ET
 endstream
 endobj
 11 0 obj
-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 15 0 R >> >> /Contents 12 0 R >>
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 17 0 R >> >> /Contents 12 0 R >>
 endobj
 12 0 obj
-<< /Length 2325 >>
+<< /Length 2508 >>
 stream
 BT
 /F1 11 Tf
@@ -274,88 +274,128 @@ BT
 1 0 0 1 50 472 Tm () Tj
 1 0 0 1 50 458 Tm (Returns the most common delay reasons found in imported journey data.) Tj
 1 0 0 1 50 444 Tm () Tj
-1 0 0 1 50 430 Tm (## Import Scripts) Tj
+1 0 0 1 50 430 Tm (### GET `/api/v1/analytics/reference-data/route-name-coverage`) Tj
 1 0 0 1 50 416 Tm () Tj
-1 0 0 1 50 402 Tm (The API does not read external feeds during public requests. Import data first, then) Tj
-1 0 0 1 50 388 Tm (query the API.) Tj
-1 0 0 1 50 374 Tm () Tj
-1 0 0 1 50 360 Tm (Commands:) Tj
-1 0 0 1 50 346 Tm () Tj
-1 0 0 1 50 332 Tm (```bash) Tj
-1 0 0 1 50 318 Tm (python scripts/import_stations.py path/to/stations.csv) Tj
-1 0 0 1 50 304 Tm (python scripts/import_routes.py path/to/routes.csv) Tj
-1 0 0 1 50 290 Tm (python scripts/import_journeys.py path/to/journeys.xml) Tj
-1 0 0 1 50 276 Tm (python scripts/import_darwin_snapshot.py --snapshot-path /path/to/snapshot.gz) Tj
-1 0 0 1 50 262 Tm (--max-services 20000) Tj
-1 0 0 1 50 248 Tm (```) Tj
-1 0 0 1 50 234 Tm () Tj
-1 0 0 1 50 220 Tm (Supported source formats:) Tj
-1 0 0 1 50 206 Tm () Tj
-1 0 0 1 50 192 Tm (- stations: CSV, JSON) Tj
-1 0 0 1 50 178 Tm (- routes: CSV, JSON) Tj
-1 0 0 1 50 164 Tm (- journeys: CSV, JSON, XML) Tj
-1 0 0 1 50 150 Tm () Tj
-1 0 0 1 50 136 Tm (Darwin snapshot notes:) Tj
-1 0 0 1 50 122 Tm () Tj
+1 0 0 1 50 402 Tm (Returns a reference-data quality snapshot showing:) Tj
+1 0 0 1 50 388 Tm () Tj
+1 0 0 1 50 374 Tm (- total routes) Tj
+1 0 0 1 50 360 Tm (- how many routes are fully human-readable) Tj
+1 0 0 1 50 346 Tm (- how many routes still contain unresolved location codes) Tj
+1 0 0 1 50 332 Tm (- the top unresolved station/location codes still affecting route names) Tj
+1 0 0 1 50 318 Tm () Tj
+1 0 0 1 50 304 Tm (## Import Scripts) Tj
+1 0 0 1 50 290 Tm () Tj
+1 0 0 1 50 276 Tm (The API does not read external feeds during public requests. Import data first, then) Tj
+1 0 0 1 50 262 Tm (query the API.) Tj
+1 0 0 1 50 248 Tm () Tj
+1 0 0 1 50 234 Tm (Commands:) Tj
+1 0 0 1 50 220 Tm () Tj
+1 0 0 1 50 206 Tm (```bash) Tj
+1 0 0 1 50 192 Tm (python scripts/import_stations.py path/to/stations.csv) Tj
+1 0 0 1 50 178 Tm (python scripts/import_routes.py path/to/routes.csv) Tj
+1 0 0 1 50 164 Tm (python scripts/import_journeys.py path/to/journeys.xml) Tj
+1 0 0 1 50 150 Tm (python scripts/import_darwin_snapshot.py --snapshot-path /path/to/snapshot.gz) Tj
+1 0 0 1 50 136 Tm (--max-services 20000) Tj
+1 0 0 1 50 122 Tm (```) Tj
 ET
 endstream
 endobj
 13 0 obj
-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 15 0 R >> >> /Contents 14 0 R >>
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 17 0 R >> >> /Contents 14 0 R >>
 endobj
 14 0 obj
-<< /Length 1269 >>
+<< /Length 2526 >>
 stream
 BT
 /F1 11 Tf
-1 0 0 1 50 780 Tm (- the Darwin importer can fetch from FTP or import from a previously downloaded local) Tj
-1 0 0 1 50 766 Tm (snapshot file) Tj
-1 0 0 1 50 752 Tm (- it parses Darwin `schedule` and `TS` documents and converts them into normalized) Tj
-1 0 0 1 50 738 Tm (station, route, and journey records) Tj
-1 0 0 1 50 724 Tm (- when KB enrichment is not available yet, station reference rows are created with) Tj
-1 0 0 1 50 710 Tm (Darwin `TIPLOC` codes as both the code and fallback display name) Tj
+1 0 0 1 50 780 Tm () Tj
+1 0 0 1 50 766 Tm (Supported source formats:) Tj
+1 0 0 1 50 752 Tm () Tj
+1 0 0 1 50 738 Tm (- stations: CSV, JSON) Tj
+1 0 0 1 50 724 Tm (- routes: CSV, JSON) Tj
+1 0 0 1 50 710 Tm (- journeys: CSV, JSON, XML) Tj
 1 0 0 1 50 696 Tm () Tj
-1 0 0 1 50 682 Tm (Example local snapshot import:) Tj
+1 0 0 1 50 682 Tm (Darwin snapshot notes:) Tj
 1 0 0 1 50 668 Tm () Tj
-1 0 0 1 50 654 Tm (```bash) Tj
-1 0 0 1 50 640 Tm (DATABASE_URL="postgresql+psycopg://postgres@/rail_api?host=/run/postgresql" \\) Tj
-1 0 0 1 50 626 Tm (./.venv/bin/python scripts/import_darwin_snapshot.py \\) Tj
-1 0 0 1 50 612 Tm (--snapshot-path "/home/igor/rail_test/downloads/20260319_161557_snapshot.gz" \\) Tj
-1 0 0 1 50 598 Tm (--max-services 20000) Tj
-1 0 0 1 50 584 Tm (```) Tj
+1 0 0 1 50 654 Tm (- the Darwin importer can fetch from FTP or import from a previously downloaded local) Tj
+1 0 0 1 50 640 Tm (snapshot file) Tj
+1 0 0 1 50 626 Tm (- it parses Darwin `schedule` and `TS` documents and converts them into normalized) Tj
+1 0 0 1 50 612 Tm (station, route, and journey records) Tj
+1 0 0 1 50 598 Tm (- when KB enrichment is not available yet, station reference rows are created with) Tj
+1 0 0 1 50 584 Tm (Darwin `TIPLOC` codes as both the code and fallback display name) Tj
 1 0 0 1 50 570 Tm () Tj
-1 0 0 1 50 556 Tm (## Swagger Documentation) Tj
+1 0 0 1 50 556 Tm (Example local snapshot import:) Tj
 1 0 0 1 50 542 Tm () Tj
-1 0 0 1 50 528 Tm (FastAPI also exposes interactive documentation at:) Tj
-1 0 0 1 50 514 Tm () Tj
-1 0 0 1 50 500 Tm (- `/docs`) Tj
-1 0 0 1 50 486 Tm (- `/redoc`) Tj
+1 0 0 1 50 528 Tm (```bash) Tj
+1 0 0 1 50 514 Tm (DATABASE_URL="postgresql+psycopg://postgres@/rail_api?host=/run/postgresql" \\) Tj
+1 0 0 1 50 500 Tm (./.venv/bin/python scripts/import_darwin_snapshot.py \\) Tj
+1 0 0 1 50 486 Tm (--snapshot-path "/home/igor/rail_test/downloads/20260319_161557_snapshot.gz" \\) Tj
+1 0 0 1 50 472 Tm (--max-services 20000) Tj
+1 0 0 1 50 458 Tm (```) Tj
+1 0 0 1 50 444 Tm () Tj
+1 0 0 1 50 430 Tm (Current local enrichment snapshot:) Tj
+1 0 0 1 50 416 Tm () Tj
+1 0 0 1 50 402 Tm (- `2,993` stations total) Tj
+1 0 0 1 50 388 Tm (- `2,610` stations with `city`) Tj
+1 0 0 1 50 374 Tm (- `2,912` stations with `tiploc_code`) Tj
+1 0 0 1 50 360 Tm (- `2,610` stations with both `latitude` and `longitude`) Tj
+1 0 0 1 50 346 Tm (- `2,899` routes total) Tj
+1 0 0 1 50 332 Tm (- `1,817` routes with approximate `distance_km`) Tj
+1 0 0 1 50 318 Tm () Tj
+1 0 0 1 50 304 Tm (Current route-name coverage snapshot:) Tj
+1 0 0 1 50 290 Tm () Tj
+1 0 0 1 50 276 Tm (- `1,959` fully human-readable routes) Tj
+1 0 0 1 50 262 Tm (- `820` partially unresolved routes) Tj
+1 0 0 1 50 248 Tm (- `120` fully unresolved routes) Tj
+1 0 0 1 50 234 Tm () Tj
+1 0 0 1 50 220 Tm (Remaining unresolved names are mainly operational timing points, depots, sidings, or) Tj
+1 0 0 1 50 206 Tm (junction aliases rather than ordinary passenger stations.) Tj
+1 0 0 1 50 192 Tm () Tj
+1 0 0 1 50 178 Tm (## Swagger Documentation) Tj
+1 0 0 1 50 164 Tm () Tj
+1 0 0 1 50 150 Tm (FastAPI also exposes interactive documentation at:) Tj
+1 0 0 1 50 136 Tm () Tj
+1 0 0 1 50 122 Tm (- `/docs`) Tj
 ET
 endstream
 endobj
 15 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 17 0 R >> >> /Contents 16 0 R >>
+endobj
+16 0 obj
+<< /Length 49 >>
+stream
+BT
+/F1 11 Tf
+1 0 0 1 50 780 Tm (- `/redoc`) Tj
+ET
+endstream
+endobj
+17 0 obj
 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
 endobj
 xref
-0 16
+0 18
 0000000000 65535 f 
 0000000009 00000 n 
 0000000058 00000 n 
-0000000147 00000 n 
-0000000274 00000 n 
-0000002379 00000 n 
-0000002506 00000 n 
-0000004407 00000 n 
-0000004534 00000 n 
-0000006471 00000 n 
-0000006599 00000 n 
-0000008627 00000 n 
-0000008756 00000 n 
-0000011134 00000 n 
-0000011263 00000 n 
-0000012585 00000 n 
+0000000154 00000 n 
+0000000281 00000 n 
+0000002386 00000 n 
+0000002513 00000 n 
+0000004414 00000 n 
+0000004541 00000 n 
+0000006478 00000 n 
+0000006606 00000 n 
+0000008634 00000 n 
+0000008763 00000 n 
+0000011324 00000 n 
+0000011453 00000 n 
+0000014032 00000 n 
+0000014161 00000 n 
+0000014261 00000 n 
 trailer
-<< /Size 16 /Root 1 0 R >>
+<< /Size 18 /Root 1 0 R >>
 startxref
-12656
+14332
 %%EOF
