@@ -166,11 +166,16 @@ def test_mcp_search_lookup_and_analytics_impls(
 
     assert mcp_server.get_route_reliability_impl(route_code="LDS-YRK")["total_journeys"] == 3
     assert mcp_server.get_route_average_delay_impl(route_id=route_id)["average_delay_minutes"] == 5.0
+    assert mcp_server.get_route_cancellation_rate_impl(route_id=route_id)["cancelled_journeys"] == 1
+    assert mcp_server.get_route_delay_distribution_impl(route_id=route_id)["total_journeys"] == 2
     assert mcp_server.get_hourly_delay_patterns_impl()[0]["bucket"] == "08:00"
-    assert mcp_server.get_daily_delay_patterns_impl()[0]["bucket"] == "Monday"
     assert mcp_server.get_station_hotspots_impl(limit=2)[0]["station_id"] in {leeds_id, 2}
     assert mcp_server.get_incident_frequency_impl()[0]["total_incidents"] >= 1
+    assert mcp_server.get_incident_severity_breakdown_impl()[0]["label"] == "high"
+    assert mcp_server.get_incident_status_breakdown_impl()[0]["label"] == "investigating"
     assert mcp_server.get_common_delay_reasons_impl(limit=1)[0]["reason"] == "Signal failure"
+    assert mcp_server.get_top_delayed_routes_impl(limit=1)[0]["route_code"] == "LDS-YRK"
+    assert mcp_server.get_top_cancelled_routes_impl(limit=1)[0]["route_code"] == "LDS-YRK"
     assert mcp_server.get_route_name_coverage_impl()["total_routes"] == 1
     assert mcp_server.get_data_coverage_impl()["journey_records"] == 3
 

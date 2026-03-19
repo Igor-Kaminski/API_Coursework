@@ -33,15 +33,15 @@ def test_global_database_exception_handler_returns_structured_500(
     client,
     monkeypatch,
 ) -> None:
-    def failing_daily_patterns(_db):
+    def failing_hourly_patterns(_db):
         raise SQLAlchemyError("forced failure")
 
     monkeypatch.setattr(
-        "app.routers.analytics.analytics_service.get_daily_delay_patterns",
-        failing_daily_patterns,
+        "app.routers.analytics.analytics_service.get_hourly_delay_patterns",
+        failing_hourly_patterns,
     )
 
-    response = client.get("/api/v1/analytics/delay-patterns/daily")
+    response = client.get("/api/v1/analytics/delay-patterns/hourly")
 
     assert response.status_code == 500
     assert response.json()["error"]["code"] == "database_error"

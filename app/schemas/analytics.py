@@ -15,6 +15,25 @@ class RouteAverageDelayRead(BaseModel):
     average_delay_minutes: float
 
 
+class RouteCancellationRateRead(BaseModel):
+    route_id: int
+    total_journeys: int
+    cancelled_journeys: int
+    cancellation_rate_percentage: float
+
+
+class DelayDistributionBucketRead(BaseModel):
+    bucket: str
+    total_journeys: int
+    percentage: float
+
+
+class RouteDelayDistributionRead(BaseModel):
+    route_id: int
+    total_journeys: int
+    buckets: list[DelayDistributionBucketRead]
+
+
 class DelayPatternPointRead(BaseModel):
     bucket: str
     total_journeys: int
@@ -33,9 +52,31 @@ class IncidentFrequencyPointRead(BaseModel):
     total_incidents: int
 
 
+class IncidentBreakdownPointRead(BaseModel):
+    label: str
+    total_incidents: int
+
+
 class DelayReasonFrequencyRead(BaseModel):
     reason: str
     total_occurrences: int
+
+
+class TopDelayedRouteRead(BaseModel):
+    route_id: int
+    route_name: str
+    route_code: str | None
+    total_journeys: int
+    average_delay_minutes: float
+
+
+class TopCancelledRouteRead(BaseModel):
+    route_id: int
+    route_name: str
+    route_code: str | None
+    total_journeys: int
+    cancelled_journeys: int
+    cancellation_rate_percentage: float
 
 
 class UnresolvedLocationRead(BaseModel):

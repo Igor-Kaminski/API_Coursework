@@ -410,16 +410,31 @@ def get_route_average_delay_impl(
         return _dump_model(analytics_service.get_route_average_delay(db, route.id))
 
 
+def get_route_cancellation_rate_impl(
+    *,
+    route_id: int | None = None,
+    route_code: str | None = None,
+) -> dict[str, Any]:
+    with db_session() as db:
+        route = _fetch_route(db, route_id=route_id, code=route_code)
+        return _dump_model(analytics_service.get_route_cancellation_rate(db, route.id))
+
+
+def get_route_delay_distribution_impl(
+    *,
+    route_id: int | None = None,
+    route_code: str | None = None,
+) -> dict[str, Any]:
+    with db_session() as db:
+        route = _fetch_route(db, route_id=route_id, code=route_code)
+        return _dump_model(analytics_service.get_route_delay_distribution(db, route.id))
+
+
 def get_hourly_delay_patterns_impl() -> list[dict[str, Any]]:
     with db_session() as db:
         return [
             _dump_model(point) for point in analytics_service.get_hourly_delay_patterns(db)
         ]
-
-
-def get_daily_delay_patterns_impl() -> list[dict[str, Any]]:
-    with db_session() as db:
-        return [_dump_model(point) for point in analytics_service.get_daily_delay_patterns(db)]
 
 
 def get_station_hotspots_impl(limit: int = 10) -> list[dict[str, Any]]:
@@ -432,9 +447,51 @@ def get_incident_frequency_impl() -> list[dict[str, Any]]:
         return [_dump_model(item) for item in analytics_service.get_incident_frequency(db)]
 
 
+def get_incident_severity_breakdown_impl() -> list[dict[str, Any]]:
+    with db_session() as db:
+        return [
+            _dump_model(item) for item in analytics_service.get_incident_severity_breakdown(db)
+        ]
+
+
+def get_incident_status_breakdown_impl() -> list[dict[str, Any]]:
+    with db_session() as db:
+        return [_dump_model(item) for item in analytics_service.get_incident_status_breakdown(db)]
+
+
 def get_common_delay_reasons_impl(limit: int = 10) -> list[dict[str, Any]]:
     with db_session() as db:
         return [_dump_model(item) for item in analytics_service.get_common_delay_reasons(db, limit)]
+
+
+def get_top_delayed_routes_impl(
+    limit: int = 10,
+    min_journeys: int = 1,
+) -> list[dict[str, Any]]:
+    with db_session() as db:
+        return [
+            _dump_model(item)
+            for item in analytics_service.get_top_delayed_routes(
+                db,
+                limit=limit,
+                min_journeys=min_journeys,
+            )
+        ]
+
+
+def get_top_cancelled_routes_impl(
+    limit: int = 10,
+    min_journeys: int = 1,
+) -> list[dict[str, Any]]:
+    with db_session() as db:
+        return [
+            _dump_model(item)
+            for item in analytics_service.get_top_cancelled_routes(
+                db,
+                limit=limit,
+                min_journeys=min_journeys,
+            )
+        ]
 
 
 def get_route_name_coverage_impl(limit: int = 10) -> dict[str, Any]:
@@ -851,11 +908,16 @@ def tool_guide_resource() -> str:
             "analytics_tools": [
                 "get_route_reliability",
                 "get_route_average_delay",
+                "get_route_cancellation_rate",
+                "get_route_delay_distribution",
                 "get_hourly_delay_patterns",
-                "get_daily_delay_patterns",
                 "get_station_hotspots",
                 "get_incident_frequency",
+                "get_incident_severity_breakdown",
+                "get_incident_status_breakdown",
                 "get_common_delay_reasons",
+                "get_top_delayed_routes",
+                "get_top_cancelled_routes",
                 "get_route_name_coverage",
             ],
             "write_tools": [
@@ -881,10 +943,11 @@ def investigate_route_delay_prompt(route_code: str) -> str:
     return (
         f"Investigate performance for route `{route_code}`. First call `get_route` "
         f"with `code={route_code}` to confirm the route. Then call "
-        "`get_route_reliability` and `get_route_average_delay` with the same route "
-        "identifier. If the route appears problematic, compare it with "
-        "`get_hourly_delay_patterns`, `get_daily_delay_patterns`, "
-        "`get_common_delay_reasons`, and `list_incidents` filtered to the route."
+        "`get_route_reliability`, `get_route_average_delay`, "
+        "`get_route_cancellation_rate`, and `get_route_delay_distribution` with "
+        "the same route identifier. If the route appears problematic, compare it "
+        "with `get_hourly_delay_patterns`, `get_common_delay_reasons`, and "
+        "`list_incidents` filtered to the route."
     )
 
 
@@ -1174,14 +1237,25 @@ def get_route_average_delay(
     return get_route_average_delay_impl(route_id=route_id, route_code=route_code)
 
 
+@mcp.tool(name="get_route_cancellation_rate", description="Compute the cancellation rate for a route.", structured_output=True)
+def get_route_cancellation_rate(
+    route_id: int | None = None,
+    route_code: str | None = None,
+) -> dict[str, Any]:
+    return get_route_cancellation_rate_impl(route_id=route_id, route_code=route_code)
+
+
+@mcp.tool(name="get_route_delay_distribution", description="Summarize route delays into coursework-friendly buckets.", structured_output=True)
+def get_route_delay_distribution(
+    route_id: int | None = None,
+    route_code: str | None = None,
+) -> dict[str, Any]:
+    return get_route_delay_distribution_impl(route_id=route_id, route_code=route_code)
+
+
 @mcp.tool(name="get_hourly_delay_patterns", description="Summarize average delays by scheduled departure hour.", structured_output=True)
 def get_hourly_delay_patterns() -> list[dict[str, Any]]:
     return get_hourly_delay_patterns_impl()
-
-
-@mcp.tool(name="get_daily_delay_patterns", description="Summarize average delays by day of week.", structured_output=True)
-def get_daily_delay_patterns() -> list[dict[str, Any]]:
-    return get_daily_delay_patterns_impl()
 
 
 @mcp.tool(name="get_station_hotspots", description="Return the most delay-affected stations.", structured_output=True)
@@ -1194,9 +1268,29 @@ def get_incident_frequency() -> list[dict[str, Any]]:
     return get_incident_frequency_impl()
 
 
+@mcp.tool(name="get_incident_severity_breakdown", description="Summarize incident counts by severity.", structured_output=True)
+def get_incident_severity_breakdown() -> list[dict[str, Any]]:
+    return get_incident_severity_breakdown_impl()
+
+
+@mcp.tool(name="get_incident_status_breakdown", description="Summarize incident counts by status.", structured_output=True)
+def get_incident_status_breakdown() -> list[dict[str, Any]]:
+    return get_incident_status_breakdown_impl()
+
+
 @mcp.tool(name="get_common_delay_reasons", description="Return the most common imported delay reasons.", structured_output=True)
 def get_common_delay_reasons(limit: int = 10) -> list[dict[str, Any]]:
     return get_common_delay_reasons_impl(limit=limit)
+
+
+@mcp.tool(name="get_top_delayed_routes", description="Return the most delayed routes ranked by average delay.", structured_output=True)
+def get_top_delayed_routes(limit: int = 10, min_journeys: int = 1) -> list[dict[str, Any]]:
+    return get_top_delayed_routes_impl(limit=limit, min_journeys=min_journeys)
+
+
+@mcp.tool(name="get_top_cancelled_routes", description="Return the most cancellation-prone routes.", structured_output=True)
+def get_top_cancelled_routes(limit: int = 10, min_journeys: int = 1) -> list[dict[str, Any]]:
+    return get_top_cancelled_routes_impl(limit=limit, min_journeys=min_journeys)
 
 
 @mcp.tool(name="get_route_name_coverage", description="Summarize how many routes have fully resolved human-readable station names.", structured_output=True)

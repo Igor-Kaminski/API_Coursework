@@ -10,11 +10,16 @@ from app.models.route import Route
 from app.schemas.analytics import (
     DelayPatternPointRead,
     DelayReasonFrequencyRead,
+    IncidentBreakdownPointRead,
     IncidentFrequencyPointRead,
+    RouteCancellationRateRead,
+    RouteDelayDistributionRead,
     RouteNameCoverageRead,
     RouteAverageDelayRead,
     RouteReliabilityRead,
     StationHotspotRead,
+    TopCancelledRouteRead,
+    TopDelayedRouteRead,
 )
 from app.services.analytics_service import AnalyticsService
 
@@ -63,14 +68,51 @@ def get_route_average_delay_by_code(route_code: str, db: DBSession) -> RouteAver
     return analytics_service.get_route_average_delay(db, route.id)
 
 
+@router.get(
+    "/routes/{route_id}/cancellation-rate",
+    response_model=RouteCancellationRateRead,
+)
+def get_route_cancellation_rate(route_id: int, db: DBSession) -> RouteCancellationRateRead:
+    _require_route(db, route_id)
+    return analytics_service.get_route_cancellation_rate(db, route_id)
+
+
+@router.get(
+    "/routes/by-code/{route_code}/cancellation-rate",
+    response_model=RouteCancellationRateRead,
+)
+def get_route_cancellation_rate_by_code(
+    route_code: str,
+    db: DBSession,
+) -> RouteCancellationRateRead:
+    route = _get_route_by_code(db, route_code)
+    return analytics_service.get_route_cancellation_rate(db, route.id)
+
+
+@router.get(
+    "/routes/{route_id}/delay-distribution",
+    response_model=RouteDelayDistributionRead,
+)
+def get_route_delay_distribution(route_id: int, db: DBSession) -> RouteDelayDistributionRead:
+    _require_route(db, route_id)
+    return analytics_service.get_route_delay_distribution(db, route_id)
+
+
+@router.get(
+    "/routes/by-code/{route_code}/delay-distribution",
+    response_model=RouteDelayDistributionRead,
+)
+def get_route_delay_distribution_by_code(
+    route_code: str,
+    db: DBSession,
+) -> RouteDelayDistributionRead:
+    route = _get_route_by_code(db, route_code)
+    return analytics_service.get_route_delay_distribution(db, route.id)
+
+
 @router.get("/delay-patterns/hourly", response_model=list[DelayPatternPointRead])
 def get_hourly_delay_patterns(db: DBSession) -> list[DelayPatternPointRead]:
     return analytics_service.get_hourly_delay_patterns(db)
-
-
-@router.get("/delay-patterns/daily", response_model=list[DelayPatternPointRead])
-def get_daily_delay_patterns(db: DBSession) -> list[DelayPatternPointRead]:
-    return analytics_service.get_daily_delay_patterns(db)
 
 
 @router.get("/stations/hotspots", response_model=list[StationHotspotRead])
@@ -87,6 +129,22 @@ def get_incident_frequency(db: DBSession) -> list[IncidentFrequencyPointRead]:
     return analytics_service.get_incident_frequency(db)
 
 
+@router.get(
+    "/incidents/severity-breakdown",
+    response_model=list[IncidentBreakdownPointRead],
+)
+def get_incident_severity_breakdown(db: DBSession) -> list[IncidentBreakdownPointRead]:
+    return analytics_service.get_incident_severity_breakdown(db)
+
+
+@router.get(
+    "/incidents/status-breakdown",
+    response_model=list[IncidentBreakdownPointRead],
+)
+def get_incident_status_breakdown(db: DBSession) -> list[IncidentBreakdownPointRead]:
+    return analytics_service.get_incident_status_breakdown(db)
+
+
 @router.get("/delay-reasons/common", response_model=list[DelayReasonFrequencyRead])
 def get_common_delay_reasons(
     db: DBSession,
@@ -94,6 +152,36 @@ def get_common_delay_reasons(
 ) -> list[DelayReasonFrequencyRead]:
     validate_limit(limit)
     return analytics_service.get_common_delay_reasons(db, limit=limit)
+
+
+@router.get(
+    "/routes/top-delayed",
+    response_model=list[TopDelayedRouteRead],
+)
+def get_top_delayed_routes(
+    db: DBSession,
+    limit: int = Query(default=10, ge=1, le=100),
+    min_journeys: int = Query(default=1, ge=1, le=1000),
+) -> list[TopDelayedRouteRead]:
+    validate_limit(limit)
+    return analytics_service.get_top_delayed_routes(db, limit=limit, min_journeys=min_journeys)
+
+
+@router.get(
+    "/routes/top-cancelled",
+    response_model=list[TopCancelledRouteRead],
+)
+def get_top_cancelled_routes(
+    db: DBSession,
+    limit: int = Query(default=10, ge=1, le=100),
+    min_journeys: int = Query(default=1, ge=1, le=1000),
+) -> list[TopCancelledRouteRead]:
+    validate_limit(limit)
+    return analytics_service.get_top_cancelled_routes(
+        db,
+        limit=limit,
+        min_journeys=min_journeys,
+    )
 
 
 @router.get(

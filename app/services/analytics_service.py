@@ -8,12 +8,18 @@ from app.models.journey_record import JourneyRecord
 from app.models.route import Route
 from app.schemas.analytics import (
     DelayPatternPointRead,
+    DelayDistributionBucketRead,
     DelayReasonFrequencyRead,
+    IncidentBreakdownPointRead,
     IncidentFrequencyPointRead,
+    RouteCancellationRateRead,
+    RouteDelayDistributionRead,
     RouteNameCoverageRead,
     RouteAverageDelayRead,
     RouteReliabilityRead,
     StationHotspotRead,
+    TopCancelledRouteRead,
+    TopDelayedRouteRead,
     UnresolvedLocationRead,
 )
 
@@ -21,12 +27,13 @@ from app.schemas.analytics import (
 class AnalyticsService:
     """Computes coursework-friendly analytics from stored local data."""
 
-    def get_route_reliability(self, db: Session, route_id: int) -> RouteReliabilityRead:
-        records = list(
-            db.scalars(
-                select(JourneyRecord).where(JourneyRecord.route_id == route_id)
-            )
+    def _get_route_records(self, db: Session, route_id: int) -> list[JourneyRecord]:
+        return list(
+            db.scalars(select(JourneyRecord).where(JourneyRecord.route_id == route_id))
         )
+
+    def get_route_reliability(self, db: Session, route_id: int) -> RouteReliabilityRead:
+        records = self._get_route_records(db, route_id)
 
         total = len(records)
         if total == 0:
@@ -53,9 +60,7 @@ class AnalyticsService:
     def get_route_average_delay(self, db: Session, route_id: int) -> RouteAverageDelayRead:
         delays = [
             record.delay_minutes
-            for record in db.scalars(
-                select(JourneyRecord).where(JourneyRecord.route_id == route_id)
-            )
+            for record in self._get_route_records(db, route_id)
             if record.delay_minutes is not None
         ]
 
@@ -65,6 +70,63 @@ class AnalyticsService:
             route_id=route_id,
             total_journeys=total,
             average_delay_minutes=average,
+        )
+
+    def get_route_cancellation_rate(
+        self,
+        db: Session,
+        route_id: int,
+    ) -> RouteCancellationRateRead:
+        records = self._get_route_records(db, route_id)
+        total = len(records)
+        cancelled = sum(1 for record in records if record.status == "cancelled")
+        rate = round(cancelled * 100 / total, 2) if total else 0.0
+        return RouteCancellationRateRead(
+            route_id=route_id,
+            total_journeys=total,
+            cancelled_journeys=cancelled,
+            cancellation_rate_percentage=rate,
+        )
+
+    def get_route_delay_distribution(
+        self,
+        db: Session,
+        route_id: int,
+    ) -> RouteDelayDistributionRead:
+        records = [
+            record
+            for record in self._get_route_records(db, route_id)
+            if record.delay_minutes is not None
+        ]
+        total = len(records)
+        bucket_counts = {
+            "0-4": 0,
+            "5-9": 0,
+            "10-14": 0,
+            "15+": 0,
+        }
+        for record in records:
+            delay = record.delay_minutes or 0
+            if delay < 5:
+                bucket_counts["0-4"] += 1
+            elif delay < 10:
+                bucket_counts["5-9"] += 1
+            elif delay < 15:
+                bucket_counts["10-14"] += 1
+            else:
+                bucket_counts["15+"] += 1
+
+        return RouteDelayDistributionRead(
+            route_id=route_id,
+            total_journeys=total,
+            buckets=[
+                DelayDistributionBucketRead(
+                    bucket=bucket,
+                    total_journeys=count,
+                    percentage=round(count * 100 / total, 2) if total else 0.0,
+                )
+                for bucket, count in bucket_counts.items()
+            ],
         )
 
     def get_hourly_delay_patterns(self, db: Session) -> list[DelayPatternPointRead]:
@@ -81,33 +143,6 @@ class AnalyticsService:
                 average_delay_minutes=round(sum(values) / len(values), 2),
             )
             for hour, values in sorted(buckets.items())
-        ]
-
-    def get_daily_delay_patterns(self, db: Session) -> list[DelayPatternPointRead]:
-        buckets: dict[str, list[int]] = defaultdict(list)
-        for record in db.scalars(select(JourneyRecord)):
-            if record.delay_minutes is None:
-                continue
-            day_name = record.journey_date.strftime("%A")
-            buckets[day_name].append(record.delay_minutes)
-
-        ordered_days = [
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-            "Sunday",
-        ]
-        return [
-            DelayPatternPointRead(
-                bucket=day_name,
-                total_journeys=len(buckets[day_name]),
-                average_delay_minutes=round(sum(buckets[day_name]) / len(buckets[day_name]), 2),
-            )
-            for day_name in ordered_days
-            if day_name in buckets
         ]
 
     def get_station_hotspots(
@@ -154,6 +189,32 @@ class AnalyticsService:
             for bucket, total in sorted(buckets.items())
         ]
 
+    def get_incident_severity_breakdown(
+        self,
+        db: Session,
+    ) -> list[IncidentBreakdownPointRead]:
+        buckets: dict[str, int] = defaultdict(int)
+        for incident in db.scalars(select(Incident)):
+            buckets[incident.severity] += 1
+
+        return [
+            IncidentBreakdownPointRead(label=label, total_incidents=total)
+            for label, total in sorted(buckets.items(), key=lambda item: (-item[1], item[0]))
+        ]
+
+    def get_incident_status_breakdown(
+        self,
+        db: Session,
+    ) -> list[IncidentBreakdownPointRead]:
+        buckets: dict[str, int] = defaultdict(int)
+        for incident in db.scalars(select(Incident)):
+            buckets[incident.status] += 1
+
+        return [
+            IncidentBreakdownPointRead(label=label, total_incidents=total)
+            for label, total in sorted(buckets.items(), key=lambda item: (-item[1], item[0]))
+        ]
+
     def get_common_delay_reasons(
         self,
         db: Session,
@@ -171,6 +232,71 @@ class AnalyticsService:
         ]
         reasons.sort(key=lambda item: (-item.total_occurrences, item.reason))
         return reasons[:limit]
+
+    def get_top_delayed_routes(
+        self,
+        db: Session,
+        limit: int = 10,
+        min_journeys: int = 1,
+    ) -> list[TopDelayedRouteRead]:
+        routes = list(db.scalars(select(Route)))
+        ranked: list[TopDelayedRouteRead] = []
+        for route in routes:
+            delays = [
+                record.delay_minutes
+                for record in self._get_route_records(db, route.id)
+                if record.delay_minutes is not None
+            ]
+            total = len(delays)
+            if total < min_journeys:
+                continue
+            ranked.append(
+                TopDelayedRouteRead(
+                    route_id=route.id,
+                    route_name=route.name,
+                    route_code=route.code,
+                    total_journeys=total,
+                    average_delay_minutes=round(sum(delays) / total, 2),
+                )
+            )
+
+        ranked.sort(key=lambda item: (-item.average_delay_minutes, -item.total_journeys, item.route_name))
+        return ranked[:limit]
+
+    def get_top_cancelled_routes(
+        self,
+        db: Session,
+        limit: int = 10,
+        min_journeys: int = 1,
+    ) -> list[TopCancelledRouteRead]:
+        routes = list(db.scalars(select(Route)))
+        ranked: list[TopCancelledRouteRead] = []
+        for route in routes:
+            records = self._get_route_records(db, route.id)
+            total = len(records)
+            if total < min_journeys:
+                continue
+            cancelled = sum(1 for record in records if record.status == "cancelled")
+            ranked.append(
+                TopCancelledRouteRead(
+                    route_id=route.id,
+                    route_name=route.name,
+                    route_code=route.code,
+                    total_journeys=total,
+                    cancelled_journeys=cancelled,
+                    cancellation_rate_percentage=round(cancelled * 100 / total, 2) if total else 0.0,
+                )
+            )
+
+        ranked.sort(
+            key=lambda item: (
+                -item.cancellation_rate_percentage,
+                -item.cancelled_journeys,
+                -item.total_journeys,
+                item.route_name,
+            )
+        )
+        return ranked[:limit]
 
     def get_route_name_coverage(
         self,
