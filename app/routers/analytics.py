@@ -9,6 +9,7 @@ from app.schemas.analytics import (
     DelayPatternPointRead,
     RouteAverageDelayRead,
     RouteReliabilityRead,
+    StationHotspotRead,
 )
 from app.services.analytics_service import AnalyticsService
 
@@ -45,3 +46,8 @@ def get_hourly_delay_patterns(db: DBSession) -> list[DelayPatternPointRead]:
 @router.get("/delay-patterns/daily", response_model=list[DelayPatternPointRead])
 def get_daily_delay_patterns(db: DBSession) -> list[DelayPatternPointRead]:
     return analytics_service.get_daily_delay_patterns(db)
+
+
+@router.get("/stations/hotspots", response_model=list[StationHotspotRead])
+def get_station_hotspots(db: DBSession, limit: int = 10) -> list[StationHotspotRead]:
+    return analytics_service.get_station_hotspots(db, limit=limit)
