@@ -118,9 +118,11 @@ curl -H "X-API-Key: change-me-admin-key" http://127.0.0.1:8000/api/v1/stations
 ## Main Endpoint Groups
 
 - `GET /api/v1/stations`
+- `GET /api/v1/stations/code/{station_code}`
 - `GET /api/v1/stations/{station_id}`
 - `POST/PATCH/DELETE /api/v1/stations/{station_id or collection}` admin only
 - `GET /api/v1/routes`
+- `GET /api/v1/routes/code/{route_code}`
 - `GET /api/v1/routes/{route_id}`
 - `POST/PATCH/DELETE /api/v1/routes/{route_id or collection}` admin only
 - `GET /api/v1/incidents`
@@ -129,11 +131,19 @@ curl -H "X-API-Key: change-me-admin-key" http://127.0.0.1:8000/api/v1/stations
 - `PATCH/DELETE /api/v1/incidents/{incident_id}` operator or admin
 - `GET /api/v1/analytics/routes/{route_id}/reliability`
 - `GET /api/v1/analytics/routes/{route_id}/average-delay`
+- `GET /api/v1/analytics/routes/by-code/{route_code}/reliability`
+- `GET /api/v1/analytics/routes/by-code/{route_code}/average-delay`
 - `GET /api/v1/analytics/delay-patterns/hourly`
 - `GET /api/v1/analytics/delay-patterns/daily`
 - `GET /api/v1/analytics/stations/hotspots`
 - `GET /api/v1/analytics/incidents/frequency`
 - `GET /api/v1/analytics/delay-reasons/common`
+
+Useful list filters:
+
+- stations: `code`, `name`, `city`, `crs_code`, `tiploc_code`
+- routes: `code`, `name`, `origin`, `destination`, `operator_name`, `is_active`
+- incidents: `route_id`, `station_id`, `incident_type`, `severity`, `status`, `reported_from`, `reported_to`
 
 ## Import Workflow
 

@@ -68,7 +68,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 17 0 R >> >> /Contents 6 0 R >>
 endobj
 6 0 obj
-<< /Length 1849 >>
+<< /Length 1875 >>
 stream
 BT
 /F1 11 Tf
@@ -81,44 +81,44 @@ BT
 1 0 0 1 50 696 Tm () Tj
 1 0 0 1 50 682 Tm (Returns a paginated-style list using `limit` and `offset` query parameters.) Tj
 1 0 0 1 50 668 Tm () Tj
-1 0 0 1 50 654 Tm (Example response:) Tj
+1 0 0 1 50 654 Tm (Supported filters:) Tj
 1 0 0 1 50 640 Tm () Tj
-1 0 0 1 50 626 Tm (```json) Tj
-1 0 0 1 50 612 Tm ([) Tj
-1 0 0 1 50 598 Tm ({) Tj
-1 0 0 1 50 584 Tm ("id": 1,) Tj
-1 0 0 1 50 570 Tm ("name": "Leeds",) Tj
-1 0 0 1 50 556 Tm ("code": "LDS",) Tj
-1 0 0 1 50 542 Tm ("city": "Leeds",) Tj
-1 0 0 1 50 528 Tm ("latitude": 53.794000,) Tj
-1 0 0 1 50 514 Tm ("longitude": -1.548000,) Tj
-1 0 0 1 50 500 Tm ("created_at": "2026-03-19T18:00:00Z",) Tj
-1 0 0 1 50 486 Tm ("updated_at": "2026-03-19T18:00:00Z") Tj
-1 0 0 1 50 472 Tm (}) Tj
-1 0 0 1 50 458 Tm (]) Tj
-1 0 0 1 50 444 Tm (```) Tj
-1 0 0 1 50 430 Tm () Tj
-1 0 0 1 50 416 Tm (### GET `/api/v1/stations/{station_id}`) Tj
-1 0 0 1 50 402 Tm () Tj
-1 0 0 1 50 388 Tm (Returns a single station by ID.) Tj
-1 0 0 1 50 374 Tm () Tj
-1 0 0 1 50 360 Tm (### POST `/api/v1/stations`) Tj
-1 0 0 1 50 346 Tm () Tj
-1 0 0 1 50 332 Tm (Admin only. Creates a station.) Tj
+1 0 0 1 50 626 Tm (- `code`) Tj
+1 0 0 1 50 612 Tm (- `name`) Tj
+1 0 0 1 50 598 Tm (- `city`) Tj
+1 0 0 1 50 584 Tm (- `crs_code`) Tj
+1 0 0 1 50 570 Tm (- `tiploc_code`) Tj
+1 0 0 1 50 556 Tm () Tj
+1 0 0 1 50 542 Tm (Example response:) Tj
+1 0 0 1 50 528 Tm () Tj
+1 0 0 1 50 514 Tm (```json) Tj
+1 0 0 1 50 500 Tm ([) Tj
+1 0 0 1 50 486 Tm ({) Tj
+1 0 0 1 50 472 Tm ("id": 1,) Tj
+1 0 0 1 50 458 Tm ("name": "Leeds",) Tj
+1 0 0 1 50 444 Tm ("code": "LDS",) Tj
+1 0 0 1 50 430 Tm ("city": "Leeds",) Tj
+1 0 0 1 50 416 Tm ("latitude": 53.794000,) Tj
+1 0 0 1 50 402 Tm ("longitude": -1.548000,) Tj
+1 0 0 1 50 388 Tm ("created_at": "2026-03-19T18:00:00Z",) Tj
+1 0 0 1 50 374 Tm ("updated_at": "2026-03-19T18:00:00Z") Tj
+1 0 0 1 50 360 Tm (}) Tj
+1 0 0 1 50 346 Tm (]) Tj
+1 0 0 1 50 332 Tm (```) Tj
 1 0 0 1 50 318 Tm () Tj
-1 0 0 1 50 304 Tm (Example request:) Tj
+1 0 0 1 50 304 Tm (### GET `/api/v1/stations/{station_id}`) Tj
 1 0 0 1 50 290 Tm () Tj
-1 0 0 1 50 276 Tm (```json) Tj
-1 0 0 1 50 262 Tm ({) Tj
-1 0 0 1 50 248 Tm ("name": "Leeds",) Tj
-1 0 0 1 50 234 Tm ("code": "LDS",) Tj
-1 0 0 1 50 220 Tm ("city": "Leeds",) Tj
-1 0 0 1 50 206 Tm ("latitude": 53.794,) Tj
-1 0 0 1 50 192 Tm ("longitude": -1.548) Tj
-1 0 0 1 50 178 Tm (}) Tj
-1 0 0 1 50 164 Tm (```) Tj
+1 0 0 1 50 276 Tm (Returns a single station by ID.) Tj
+1 0 0 1 50 262 Tm () Tj
+1 0 0 1 50 248 Tm (### GET `/api/v1/stations/code/{station_code}`) Tj
+1 0 0 1 50 234 Tm () Tj
+1 0 0 1 50 220 Tm (Returns a single station by public station code.) Tj
+1 0 0 1 50 206 Tm () Tj
+1 0 0 1 50 192 Tm (### POST `/api/v1/stations`) Tj
+1 0 0 1 50 178 Tm () Tj
+1 0 0 1 50 164 Tm (Admin only. Creates a station.) Tj
 1 0 0 1 50 150 Tm () Tj
-1 0 0 1 50 136 Tm (### PATCH `/api/v1/stations/{station_id}`) Tj
+1 0 0 1 50 136 Tm (Example request:) Tj
 1 0 0 1 50 122 Tm () Tj
 ET
 endstream
@@ -127,58 +127,58 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 17 0 R >> >> /Contents 8 0 R >>
 endobj
 8 0 obj
-<< /Length 1885 >>
+<< /Length 1826 >>
 stream
 BT
 /F1 11 Tf
-1 0 0 1 50 780 Tm (Admin only. Partially updates a station.) Tj
-1 0 0 1 50 766 Tm () Tj
-1 0 0 1 50 752 Tm (### DELETE `/api/v1/stations/{station_id}`) Tj
-1 0 0 1 50 738 Tm () Tj
-1 0 0 1 50 724 Tm (Admin only. Deletes a station.) Tj
-1 0 0 1 50 710 Tm () Tj
-1 0 0 1 50 696 Tm (## Routes) Tj
-1 0 0 1 50 682 Tm () Tj
-1 0 0 1 50 668 Tm (### GET `/api/v1/routes`) Tj
+1 0 0 1 50 780 Tm (```json) Tj
+1 0 0 1 50 766 Tm ({) Tj
+1 0 0 1 50 752 Tm ("name": "Leeds",) Tj
+1 0 0 1 50 738 Tm ("code": "LDS",) Tj
+1 0 0 1 50 724 Tm ("city": "Leeds",) Tj
+1 0 0 1 50 710 Tm ("latitude": 53.794,) Tj
+1 0 0 1 50 696 Tm ("longitude": -1.548) Tj
+1 0 0 1 50 682 Tm (}) Tj
+1 0 0 1 50 668 Tm (```) Tj
 1 0 0 1 50 654 Tm () Tj
-1 0 0 1 50 640 Tm (Returns routes with nested origin and destination station summaries.) Tj
+1 0 0 1 50 640 Tm (### PATCH `/api/v1/stations/{station_id}`) Tj
 1 0 0 1 50 626 Tm () Tj
-1 0 0 1 50 612 Tm (### GET `/api/v1/routes/{route_id}`) Tj
+1 0 0 1 50 612 Tm (Admin only. Partially updates a station.) Tj
 1 0 0 1 50 598 Tm () Tj
-1 0 0 1 50 584 Tm (Returns a single route.) Tj
+1 0 0 1 50 584 Tm (### DELETE `/api/v1/stations/{station_id}`) Tj
 1 0 0 1 50 570 Tm () Tj
-1 0 0 1 50 556 Tm (### POST `/api/v1/routes`) Tj
+1 0 0 1 50 556 Tm (Admin only. Deletes a station.) Tj
 1 0 0 1 50 542 Tm () Tj
-1 0 0 1 50 528 Tm (Admin only. Creates a route.) Tj
+1 0 0 1 50 528 Tm (## Routes) Tj
 1 0 0 1 50 514 Tm () Tj
-1 0 0 1 50 500 Tm (Example request:) Tj
+1 0 0 1 50 500 Tm (### GET `/api/v1/routes`) Tj
 1 0 0 1 50 486 Tm () Tj
-1 0 0 1 50 472 Tm (```json) Tj
-1 0 0 1 50 458 Tm ({) Tj
-1 0 0 1 50 444 Tm ("origin_station_id": 1,) Tj
-1 0 0 1 50 430 Tm ("destination_station_id": 2,) Tj
-1 0 0 1 50 416 Tm ("name": "Leeds to York",) Tj
-1 0 0 1 50 402 Tm ("code": "LDS-YRK",) Tj
-1 0 0 1 50 388 Tm ("operator_name": "LNER",) Tj
-1 0 0 1 50 374 Tm ("distance_km": 40.2,) Tj
-1 0 0 1 50 360 Tm ("is_active": true) Tj
-1 0 0 1 50 346 Tm (}) Tj
-1 0 0 1 50 332 Tm (```) Tj
-1 0 0 1 50 318 Tm () Tj
-1 0 0 1 50 304 Tm (### PATCH `/api/v1/routes/{route_id}`) Tj
-1 0 0 1 50 290 Tm () Tj
-1 0 0 1 50 276 Tm (Admin only. Partially updates a route.) Tj
-1 0 0 1 50 262 Tm () Tj
-1 0 0 1 50 248 Tm (### DELETE `/api/v1/routes/{route_id}`) Tj
-1 0 0 1 50 234 Tm () Tj
-1 0 0 1 50 220 Tm (Admin only. Deletes a route.) Tj
-1 0 0 1 50 206 Tm () Tj
-1 0 0 1 50 192 Tm (## Incidents) Tj
-1 0 0 1 50 178 Tm () Tj
-1 0 0 1 50 164 Tm (### GET `/api/v1/incidents`) Tj
-1 0 0 1 50 150 Tm () Tj
-1 0 0 1 50 136 Tm (Public read access to incidents.) Tj
-1 0 0 1 50 122 Tm () Tj
+1 0 0 1 50 472 Tm (Returns routes with nested origin and destination station summaries.) Tj
+1 0 0 1 50 458 Tm () Tj
+1 0 0 1 50 444 Tm (Supported filters:) Tj
+1 0 0 1 50 430 Tm () Tj
+1 0 0 1 50 416 Tm (- `code`) Tj
+1 0 0 1 50 402 Tm (- `name`) Tj
+1 0 0 1 50 388 Tm (- `origin`) Tj
+1 0 0 1 50 374 Tm (- `destination`) Tj
+1 0 0 1 50 360 Tm (- `operator_name`) Tj
+1 0 0 1 50 346 Tm (- `is_active`) Tj
+1 0 0 1 50 332 Tm () Tj
+1 0 0 1 50 318 Tm (### GET `/api/v1/routes/{route_id}`) Tj
+1 0 0 1 50 304 Tm () Tj
+1 0 0 1 50 290 Tm (Returns a single route.) Tj
+1 0 0 1 50 276 Tm () Tj
+1 0 0 1 50 262 Tm (### GET `/api/v1/routes/code/{route_code}`) Tj
+1 0 0 1 50 248 Tm () Tj
+1 0 0 1 50 234 Tm (Returns a single route by public route code.) Tj
+1 0 0 1 50 220 Tm () Tj
+1 0 0 1 50 206 Tm (### POST `/api/v1/routes`) Tj
+1 0 0 1 50 192 Tm () Tj
+1 0 0 1 50 178 Tm (Admin only. Creates a route.) Tj
+1 0 0 1 50 164 Tm () Tj
+1 0 0 1 50 150 Tm (Example request:) Tj
+1 0 0 1 50 136 Tm () Tj
+1 0 0 1 50 122 Tm (```json) Tj
 ET
 endstream
 endobj
@@ -186,58 +186,58 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 17 0 R >> >> /Contents 10 0 R >>
 endobj
 10 0 obj
-<< /Length 1975 >>
+<< /Length 1831 >>
 stream
 BT
 /F1 11 Tf
-1 0 0 1 50 780 Tm (### GET `/api/v1/incidents/{incident_id}`) Tj
-1 0 0 1 50 766 Tm () Tj
-1 0 0 1 50 752 Tm (Returns one incident by ID.) Tj
-1 0 0 1 50 738 Tm () Tj
-1 0 0 1 50 724 Tm (### POST `/api/v1/incidents`) Tj
-1 0 0 1 50 710 Tm () Tj
-1 0 0 1 50 696 Tm (Requires `user`, `operator`, or `admin` key.) Tj
-1 0 0 1 50 682 Tm () Tj
-1 0 0 1 50 668 Tm (Example request:) Tj
-1 0 0 1 50 654 Tm () Tj
-1 0 0 1 50 640 Tm (```json) Tj
-1 0 0 1 50 626 Tm ({) Tj
-1 0 0 1 50 612 Tm ("route_id": 1,) Tj
-1 0 0 1 50 598 Tm ("station_id": 1,) Tj
-1 0 0 1 50 584 Tm ("title": "Signal issue",) Tj
-1 0 0 1 50 570 Tm ("description": "Signal issue near Leeds",) Tj
-1 0 0 1 50 556 Tm ("incident_type": "infrastructure",) Tj
-1 0 0 1 50 542 Tm ("severity": "high",) Tj
-1 0 0 1 50 528 Tm ("status": "open",) Tj
-1 0 0 1 50 514 Tm ("reported_at": "2026-03-19T08:30:00Z") Tj
-1 0 0 1 50 500 Tm (}) Tj
-1 0 0 1 50 486 Tm (```) Tj
+1 0 0 1 50 780 Tm ({) Tj
+1 0 0 1 50 766 Tm ("origin_station_id": 1,) Tj
+1 0 0 1 50 752 Tm ("destination_station_id": 2,) Tj
+1 0 0 1 50 738 Tm ("name": "Leeds to York",) Tj
+1 0 0 1 50 724 Tm ("code": "LDS-YRK",) Tj
+1 0 0 1 50 710 Tm ("operator_name": "LNER",) Tj
+1 0 0 1 50 696 Tm ("distance_km": 40.2,) Tj
+1 0 0 1 50 682 Tm ("is_active": true) Tj
+1 0 0 1 50 668 Tm (}) Tj
+1 0 0 1 50 654 Tm (```) Tj
+1 0 0 1 50 640 Tm () Tj
+1 0 0 1 50 626 Tm (### PATCH `/api/v1/routes/{route_id}`) Tj
+1 0 0 1 50 612 Tm () Tj
+1 0 0 1 50 598 Tm (Admin only. Partially updates a route.) Tj
+1 0 0 1 50 584 Tm () Tj
+1 0 0 1 50 570 Tm (### DELETE `/api/v1/routes/{route_id}`) Tj
+1 0 0 1 50 556 Tm () Tj
+1 0 0 1 50 542 Tm (Admin only. Deletes a route.) Tj
+1 0 0 1 50 528 Tm () Tj
+1 0 0 1 50 514 Tm (## Incidents) Tj
+1 0 0 1 50 500 Tm () Tj
+1 0 0 1 50 486 Tm (### GET `/api/v1/incidents`) Tj
 1 0 0 1 50 472 Tm () Tj
-1 0 0 1 50 458 Tm (### PATCH `/api/v1/incidents/{incident_id}`) Tj
+1 0 0 1 50 458 Tm (Public read access to incidents.) Tj
 1 0 0 1 50 444 Tm () Tj
-1 0 0 1 50 430 Tm (Requires `operator` or `admin` key.) Tj
+1 0 0 1 50 430 Tm (Supported filters:) Tj
 1 0 0 1 50 416 Tm () Tj
-1 0 0 1 50 402 Tm (### DELETE `/api/v1/incidents/{incident_id}`) Tj
-1 0 0 1 50 388 Tm () Tj
-1 0 0 1 50 374 Tm (Requires `operator` or `admin` key.) Tj
-1 0 0 1 50 360 Tm () Tj
-1 0 0 1 50 346 Tm (## Analytics) Tj
-1 0 0 1 50 332 Tm () Tj
-1 0 0 1 50 318 Tm (### GET `/api/v1/analytics/routes/{route_id}/reliability`) Tj
+1 0 0 1 50 402 Tm (- `route_id`) Tj
+1 0 0 1 50 388 Tm (- `station_id`) Tj
+1 0 0 1 50 374 Tm (- `incident_type`) Tj
+1 0 0 1 50 360 Tm (- `severity`) Tj
+1 0 0 1 50 346 Tm (- `status`) Tj
+1 0 0 1 50 332 Tm (- `reported_from`) Tj
+1 0 0 1 50 318 Tm (- `reported_to`) Tj
 1 0 0 1 50 304 Tm () Tj
-1 0 0 1 50 290 Tm (Returns on-time, delayed, and cancelled percentages for a route.) Tj
+1 0 0 1 50 290 Tm (### GET `/api/v1/incidents/{incident_id}`) Tj
 1 0 0 1 50 276 Tm () Tj
-1 0 0 1 50 262 Tm (Example response:) Tj
+1 0 0 1 50 262 Tm (Returns one incident by ID.) Tj
 1 0 0 1 50 248 Tm () Tj
-1 0 0 1 50 234 Tm (```json) Tj
-1 0 0 1 50 220 Tm ({) Tj
-1 0 0 1 50 206 Tm ("route_id": 1,) Tj
-1 0 0 1 50 192 Tm ("total_journeys": 120,) Tj
-1 0 0 1 50 178 Tm ("on_time_percentage": 68.33,) Tj
-1 0 0 1 50 164 Tm ("delayed_percentage": 24.17,) Tj
-1 0 0 1 50 150 Tm ("cancelled_percentage": 7.5) Tj
-1 0 0 1 50 136 Tm (}) Tj
-1 0 0 1 50 122 Tm (```) Tj
+1 0 0 1 50 234 Tm (### POST `/api/v1/incidents`) Tj
+1 0 0 1 50 220 Tm () Tj
+1 0 0 1 50 206 Tm (Requires `user`, `operator`, or `admin` key.) Tj
+1 0 0 1 50 192 Tm () Tj
+1 0 0 1 50 178 Tm (Example request:) Tj
+1 0 0 1 50 164 Tm () Tj
+1 0 0 1 50 150 Tm (```json) Tj
+1 0 0 1 50 136 Tm ({) Tj
+1 0 0 1 50 122 Tm ("route_id": 1,) Tj
 ET
 endstream
 endobj
@@ -245,58 +245,58 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 17 0 R >> >> /Contents 12 0 R >>
 endobj
 12 0 obj
-<< /Length 2508 >>
+<< /Length 2239 >>
 stream
 BT
 /F1 11 Tf
-1 0 0 1 50 780 Tm () Tj
-1 0 0 1 50 766 Tm (### GET `/api/v1/analytics/routes/{route_id}/average-delay`) Tj
-1 0 0 1 50 752 Tm () Tj
-1 0 0 1 50 738 Tm (Returns the average delay in minutes for journeys with known delay values.) Tj
-1 0 0 1 50 724 Tm () Tj
-1 0 0 1 50 710 Tm (### GET `/api/v1/analytics/delay-patterns/hourly`) Tj
-1 0 0 1 50 696 Tm () Tj
-1 0 0 1 50 682 Tm (Returns average delay grouped by departure hour.) Tj
-1 0 0 1 50 668 Tm () Tj
-1 0 0 1 50 654 Tm (### GET `/api/v1/analytics/delay-patterns/daily`) Tj
-1 0 0 1 50 640 Tm () Tj
-1 0 0 1 50 626 Tm (Returns average delay grouped by weekday.) Tj
-1 0 0 1 50 612 Tm () Tj
-1 0 0 1 50 598 Tm (### GET `/api/v1/analytics/stations/hotspots`) Tj
-1 0 0 1 50 584 Tm () Tj
-1 0 0 1 50 570 Tm (Returns the busiest delay hotspots based on delayed journeys touching a station.) Tj
-1 0 0 1 50 556 Tm () Tj
-1 0 0 1 50 542 Tm (### GET `/api/v1/analytics/incidents/frequency`) Tj
-1 0 0 1 50 528 Tm () Tj
-1 0 0 1 50 514 Tm (Returns incident counts bucketed by report date.) Tj
-1 0 0 1 50 500 Tm () Tj
-1 0 0 1 50 486 Tm (### GET `/api/v1/analytics/delay-reasons/common`) Tj
-1 0 0 1 50 472 Tm () Tj
-1 0 0 1 50 458 Tm (Returns the most common delay reasons found in imported journey data.) Tj
-1 0 0 1 50 444 Tm () Tj
-1 0 0 1 50 430 Tm (### GET `/api/v1/analytics/reference-data/route-name-coverage`) Tj
-1 0 0 1 50 416 Tm () Tj
-1 0 0 1 50 402 Tm (Returns a reference-data quality snapshot showing:) Tj
-1 0 0 1 50 388 Tm () Tj
-1 0 0 1 50 374 Tm (- total routes) Tj
-1 0 0 1 50 360 Tm (- how many routes are fully human-readable) Tj
-1 0 0 1 50 346 Tm (- how many routes still contain unresolved location codes) Tj
-1 0 0 1 50 332 Tm (- the top unresolved station/location codes still affecting route names) Tj
-1 0 0 1 50 318 Tm () Tj
-1 0 0 1 50 304 Tm (## Import Scripts) Tj
+1 0 0 1 50 780 Tm ("station_id": 1,) Tj
+1 0 0 1 50 766 Tm ("title": "Signal issue",) Tj
+1 0 0 1 50 752 Tm ("description": "Signal issue near Leeds",) Tj
+1 0 0 1 50 738 Tm ("incident_type": "infrastructure",) Tj
+1 0 0 1 50 724 Tm ("severity": "high",) Tj
+1 0 0 1 50 710 Tm ("status": "open",) Tj
+1 0 0 1 50 696 Tm ("reported_at": "2026-03-19T08:30:00Z") Tj
+1 0 0 1 50 682 Tm (}) Tj
+1 0 0 1 50 668 Tm (```) Tj
+1 0 0 1 50 654 Tm () Tj
+1 0 0 1 50 640 Tm (### PATCH `/api/v1/incidents/{incident_id}`) Tj
+1 0 0 1 50 626 Tm () Tj
+1 0 0 1 50 612 Tm (Requires `operator` or `admin` key.) Tj
+1 0 0 1 50 598 Tm () Tj
+1 0 0 1 50 584 Tm (### DELETE `/api/v1/incidents/{incident_id}`) Tj
+1 0 0 1 50 570 Tm () Tj
+1 0 0 1 50 556 Tm (Requires `operator` or `admin` key.) Tj
+1 0 0 1 50 542 Tm () Tj
+1 0 0 1 50 528 Tm (## Analytics) Tj
+1 0 0 1 50 514 Tm () Tj
+1 0 0 1 50 500 Tm (### GET `/api/v1/analytics/routes/{route_id}/reliability`) Tj
+1 0 0 1 50 486 Tm () Tj
+1 0 0 1 50 472 Tm (Returns on-time, delayed, and cancelled percentages for a route.) Tj
+1 0 0 1 50 458 Tm () Tj
+1 0 0 1 50 444 Tm (Example response:) Tj
+1 0 0 1 50 430 Tm () Tj
+1 0 0 1 50 416 Tm (```json) Tj
+1 0 0 1 50 402 Tm ({) Tj
+1 0 0 1 50 388 Tm ("route_id": 1,) Tj
+1 0 0 1 50 374 Tm ("total_journeys": 120,) Tj
+1 0 0 1 50 360 Tm ("on_time_percentage": 68.33,) Tj
+1 0 0 1 50 346 Tm ("delayed_percentage": 24.17,) Tj
+1 0 0 1 50 332 Tm ("cancelled_percentage": 7.5) Tj
+1 0 0 1 50 318 Tm (}) Tj
+1 0 0 1 50 304 Tm (```) Tj
 1 0 0 1 50 290 Tm () Tj
-1 0 0 1 50 276 Tm (The API does not read external feeds during public requests. Import data first, then) Tj
-1 0 0 1 50 262 Tm (query the API.) Tj
-1 0 0 1 50 248 Tm () Tj
-1 0 0 1 50 234 Tm (Commands:) Tj
-1 0 0 1 50 220 Tm () Tj
-1 0 0 1 50 206 Tm (```bash) Tj
-1 0 0 1 50 192 Tm (python scripts/import_stations.py path/to/stations.csv) Tj
-1 0 0 1 50 178 Tm (python scripts/import_routes.py path/to/routes.csv) Tj
-1 0 0 1 50 164 Tm (python scripts/import_journeys.py path/to/journeys.xml) Tj
-1 0 0 1 50 150 Tm (python scripts/import_darwin_snapshot.py --snapshot-path /path/to/snapshot.gz) Tj
-1 0 0 1 50 136 Tm (--max-services 20000) Tj
-1 0 0 1 50 122 Tm (```) Tj
+1 0 0 1 50 276 Tm (### GET `/api/v1/analytics/routes/{route_id}/average-delay`) Tj
+1 0 0 1 50 262 Tm () Tj
+1 0 0 1 50 248 Tm (Returns the average delay in minutes for journeys with known delay values.) Tj
+1 0 0 1 50 234 Tm () Tj
+1 0 0 1 50 220 Tm (### GET `/api/v1/analytics/routes/by-code/{route_code}/reliability`) Tj
+1 0 0 1 50 206 Tm () Tj
+1 0 0 1 50 192 Tm (Returns route reliability using the public route code instead of the internal numeric) Tj
+1 0 0 1 50 178 Tm (ID.) Tj
+1 0 0 1 50 164 Tm () Tj
+1 0 0 1 50 150 Tm (### GET `/api/v1/analytics/routes/by-code/{route_code}/average-delay`) Tj
+1 0 0 1 50 136 Tm () Tj
+1 0 0 1 50 122 Tm (Returns average delay using the public route code instead of the internal numeric ID.) Tj
 ET
 endstream
 endobj
@@ -304,58 +304,58 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 17 0 R >> >> /Contents 14 0 R >>
 endobj
 14 0 obj
-<< /Length 2526 >>
+<< /Length 2421 >>
 stream
 BT
 /F1 11 Tf
 1 0 0 1 50 780 Tm () Tj
-1 0 0 1 50 766 Tm (Supported source formats:) Tj
+1 0 0 1 50 766 Tm (### GET `/api/v1/analytics/delay-patterns/hourly`) Tj
 1 0 0 1 50 752 Tm () Tj
-1 0 0 1 50 738 Tm (- stations: CSV, JSON) Tj
-1 0 0 1 50 724 Tm (- routes: CSV, JSON) Tj
-1 0 0 1 50 710 Tm (- journeys: CSV, JSON, XML) Tj
+1 0 0 1 50 738 Tm (Returns average delay grouped by departure hour.) Tj
+1 0 0 1 50 724 Tm () Tj
+1 0 0 1 50 710 Tm (### GET `/api/v1/analytics/delay-patterns/daily`) Tj
 1 0 0 1 50 696 Tm () Tj
-1 0 0 1 50 682 Tm (Darwin snapshot notes:) Tj
+1 0 0 1 50 682 Tm (Returns average delay grouped by weekday.) Tj
 1 0 0 1 50 668 Tm () Tj
-1 0 0 1 50 654 Tm (- the Darwin importer can fetch from FTP or import from a previously downloaded local) Tj
-1 0 0 1 50 640 Tm (snapshot file) Tj
-1 0 0 1 50 626 Tm (- it parses Darwin `schedule` and `TS` documents and converts them into normalized) Tj
-1 0 0 1 50 612 Tm (station, route, and journey records) Tj
-1 0 0 1 50 598 Tm (- when KB enrichment is not available yet, station reference rows are created with) Tj
-1 0 0 1 50 584 Tm (Darwin `TIPLOC` codes as both the code and fallback display name) Tj
-1 0 0 1 50 570 Tm () Tj
-1 0 0 1 50 556 Tm (Example local snapshot import:) Tj
-1 0 0 1 50 542 Tm () Tj
-1 0 0 1 50 528 Tm (```bash) Tj
-1 0 0 1 50 514 Tm (DATABASE_URL="postgresql+psycopg://postgres@/rail_api?host=/run/postgresql" \\) Tj
-1 0 0 1 50 500 Tm (./.venv/bin/python scripts/import_darwin_snapshot.py \\) Tj
-1 0 0 1 50 486 Tm (--snapshot-path "/home/igor/rail_test/downloads/20260319_161557_snapshot.gz" \\) Tj
-1 0 0 1 50 472 Tm (--max-services 20000) Tj
-1 0 0 1 50 458 Tm (```) Tj
+1 0 0 1 50 654 Tm (### GET `/api/v1/analytics/stations/hotspots`) Tj
+1 0 0 1 50 640 Tm () Tj
+1 0 0 1 50 626 Tm (Returns the busiest delay hotspots based on delayed journeys touching a station.) Tj
+1 0 0 1 50 612 Tm () Tj
+1 0 0 1 50 598 Tm (### GET `/api/v1/analytics/incidents/frequency`) Tj
+1 0 0 1 50 584 Tm () Tj
+1 0 0 1 50 570 Tm (Returns incident counts bucketed by report date.) Tj
+1 0 0 1 50 556 Tm () Tj
+1 0 0 1 50 542 Tm (### GET `/api/v1/analytics/delay-reasons/common`) Tj
+1 0 0 1 50 528 Tm () Tj
+1 0 0 1 50 514 Tm (Returns the most common delay reasons found in imported journey data.) Tj
+1 0 0 1 50 500 Tm () Tj
+1 0 0 1 50 486 Tm (### GET `/api/v1/analytics/reference-data/route-name-coverage`) Tj
+1 0 0 1 50 472 Tm () Tj
+1 0 0 1 50 458 Tm (Returns a reference-data quality snapshot showing:) Tj
 1 0 0 1 50 444 Tm () Tj
-1 0 0 1 50 430 Tm (Current local enrichment snapshot:) Tj
-1 0 0 1 50 416 Tm () Tj
-1 0 0 1 50 402 Tm (- `2,993` stations total) Tj
-1 0 0 1 50 388 Tm (- `2,610` stations with `city`) Tj
-1 0 0 1 50 374 Tm (- `2,912` stations with `tiploc_code`) Tj
-1 0 0 1 50 360 Tm (- `2,610` stations with both `latitude` and `longitude`) Tj
-1 0 0 1 50 346 Tm (- `2,899` routes total) Tj
-1 0 0 1 50 332 Tm (- `1,817` routes with approximate `distance_km`) Tj
-1 0 0 1 50 318 Tm () Tj
-1 0 0 1 50 304 Tm (Current route-name coverage snapshot:) Tj
-1 0 0 1 50 290 Tm () Tj
-1 0 0 1 50 276 Tm (- `1,959` fully human-readable routes) Tj
-1 0 0 1 50 262 Tm (- `820` partially unresolved routes) Tj
-1 0 0 1 50 248 Tm (- `120` fully unresolved routes) Tj
-1 0 0 1 50 234 Tm () Tj
-1 0 0 1 50 220 Tm (Remaining unresolved names are mainly operational timing points, depots, sidings, or) Tj
-1 0 0 1 50 206 Tm (junction aliases rather than ordinary passenger stations.) Tj
-1 0 0 1 50 192 Tm () Tj
-1 0 0 1 50 178 Tm (## Swagger Documentation) Tj
+1 0 0 1 50 430 Tm (- total routes) Tj
+1 0 0 1 50 416 Tm (- how many routes are fully human-readable) Tj
+1 0 0 1 50 402 Tm (- how many routes still contain unresolved location codes) Tj
+1 0 0 1 50 388 Tm (- the top unresolved station/location codes still affecting route names) Tj
+1 0 0 1 50 374 Tm () Tj
+1 0 0 1 50 360 Tm (## Import Scripts) Tj
+1 0 0 1 50 346 Tm () Tj
+1 0 0 1 50 332 Tm (The API does not read external feeds during public requests. Import data first, then) Tj
+1 0 0 1 50 318 Tm (query the API.) Tj
+1 0 0 1 50 304 Tm () Tj
+1 0 0 1 50 290 Tm (Commands:) Tj
+1 0 0 1 50 276 Tm () Tj
+1 0 0 1 50 262 Tm (```bash) Tj
+1 0 0 1 50 248 Tm (python scripts/import_stations.py path/to/stations.csv) Tj
+1 0 0 1 50 234 Tm (python scripts/import_routes.py path/to/routes.csv) Tj
+1 0 0 1 50 220 Tm (python scripts/import_journeys.py path/to/journeys.xml) Tj
+1 0 0 1 50 206 Tm (python scripts/import_darwin_snapshot.py --snapshot-path /path/to/snapshot.gz) Tj
+1 0 0 1 50 192 Tm (--max-services 20000) Tj
+1 0 0 1 50 178 Tm (```) Tj
 1 0 0 1 50 164 Tm () Tj
-1 0 0 1 50 150 Tm (FastAPI also exposes interactive documentation at:) Tj
+1 0 0 1 50 150 Tm (Supported source formats:) Tj
 1 0 0 1 50 136 Tm () Tj
-1 0 0 1 50 122 Tm (- `/docs`) Tj
+1 0 0 1 50 122 Tm (- stations: CSV, JSON) Tj
 ET
 endstream
 endobj
@@ -363,11 +363,55 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 17 0 R >> >> /Contents 16 0 R >>
 endobj
 16 0 obj
-<< /Length 49 >>
+<< /Length 2418 >>
 stream
 BT
 /F1 11 Tf
-1 0 0 1 50 780 Tm (- `/redoc`) Tj
+1 0 0 1 50 780 Tm (- routes: CSV, JSON) Tj
+1 0 0 1 50 766 Tm (- journeys: CSV, JSON, XML) Tj
+1 0 0 1 50 752 Tm () Tj
+1 0 0 1 50 738 Tm (Darwin snapshot notes:) Tj
+1 0 0 1 50 724 Tm () Tj
+1 0 0 1 50 710 Tm (- the Darwin importer can fetch from FTP or import from a previously downloaded local) Tj
+1 0 0 1 50 696 Tm (snapshot file) Tj
+1 0 0 1 50 682 Tm (- it parses Darwin `schedule` and `TS` documents and converts them into normalized) Tj
+1 0 0 1 50 668 Tm (station, route, and journey records) Tj
+1 0 0 1 50 654 Tm (- when KB enrichment is not available yet, station reference rows are created with) Tj
+1 0 0 1 50 640 Tm (Darwin `TIPLOC` codes as both the code and fallback display name) Tj
+1 0 0 1 50 626 Tm () Tj
+1 0 0 1 50 612 Tm (Example local snapshot import:) Tj
+1 0 0 1 50 598 Tm () Tj
+1 0 0 1 50 584 Tm (```bash) Tj
+1 0 0 1 50 570 Tm (DATABASE_URL="postgresql+psycopg://postgres@/rail_api?host=/run/postgresql" \\) Tj
+1 0 0 1 50 556 Tm (./.venv/bin/python scripts/import_darwin_snapshot.py \\) Tj
+1 0 0 1 50 542 Tm (--snapshot-path "/home/igor/rail_test/downloads/20260319_161557_snapshot.gz" \\) Tj
+1 0 0 1 50 528 Tm (--max-services 20000) Tj
+1 0 0 1 50 514 Tm (```) Tj
+1 0 0 1 50 500 Tm () Tj
+1 0 0 1 50 486 Tm (Current local enrichment snapshot:) Tj
+1 0 0 1 50 472 Tm () Tj
+1 0 0 1 50 458 Tm (- `2,993` stations total) Tj
+1 0 0 1 50 444 Tm (- `2,610` stations with `city`) Tj
+1 0 0 1 50 430 Tm (- `2,912` stations with `tiploc_code`) Tj
+1 0 0 1 50 416 Tm (- `2,610` stations with both `latitude` and `longitude`) Tj
+1 0 0 1 50 402 Tm (- `2,899` routes total) Tj
+1 0 0 1 50 388 Tm (- `1,817` routes with approximate `distance_km`) Tj
+1 0 0 1 50 374 Tm () Tj
+1 0 0 1 50 360 Tm (Current route-name coverage snapshot:) Tj
+1 0 0 1 50 346 Tm () Tj
+1 0 0 1 50 332 Tm (- `1,959` fully human-readable routes) Tj
+1 0 0 1 50 318 Tm (- `820` partially unresolved routes) Tj
+1 0 0 1 50 304 Tm (- `120` fully unresolved routes) Tj
+1 0 0 1 50 290 Tm () Tj
+1 0 0 1 50 276 Tm (Remaining unresolved names are mainly operational timing points, depots, sidings, or) Tj
+1 0 0 1 50 262 Tm (junction aliases rather than ordinary passenger stations.) Tj
+1 0 0 1 50 248 Tm () Tj
+1 0 0 1 50 234 Tm (## Swagger Documentation) Tj
+1 0 0 1 50 220 Tm () Tj
+1 0 0 1 50 206 Tm (FastAPI also exposes interactive documentation at:) Tj
+1 0 0 1 50 192 Tm () Tj
+1 0 0 1 50 178 Tm (- `/docs`) Tj
+1 0 0 1 50 164 Tm (- `/redoc`) Tj
 ET
 endstream
 endobj
@@ -383,19 +427,19 @@ xref
 0000000281 00000 n 
 0000002386 00000 n 
 0000002513 00000 n 
-0000004414 00000 n 
-0000004541 00000 n 
-0000006478 00000 n 
-0000006606 00000 n 
-0000008634 00000 n 
-0000008763 00000 n 
-0000011324 00000 n 
-0000011453 00000 n 
-0000014032 00000 n 
-0000014161 00000 n 
-0000014261 00000 n 
+0000004440 00000 n 
+0000004567 00000 n 
+0000006445 00000 n 
+0000006573 00000 n 
+0000008457 00000 n 
+0000008586 00000 n 
+0000010878 00000 n 
+0000011007 00000 n 
+0000013481 00000 n 
+0000013610 00000 n 
+0000016081 00000 n 
 trailer
 << /Size 18 /Root 1 0 R >>
 startxref
-14332
+16152
 %%EOF

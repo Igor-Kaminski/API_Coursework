@@ -55,6 +55,14 @@ Typical error codes:
 
 Returns a paginated-style list using `limit` and `offset` query parameters.
 
+Supported filters:
+
+- `code`
+- `name`
+- `city`
+- `crs_code`
+- `tiploc_code`
+
 Example response:
 
 ```json
@@ -75,6 +83,10 @@ Example response:
 ### GET `/api/v1/stations/{station_id}`
 
 Returns a single station by ID.
+
+### GET `/api/v1/stations/code/{station_code}`
+
+Returns a single station by public station code.
 
 ### POST `/api/v1/stations`
 
@@ -106,9 +118,22 @@ Admin only. Deletes a station.
 
 Returns routes with nested origin and destination station summaries.
 
+Supported filters:
+
+- `code`
+- `name`
+- `origin`
+- `destination`
+- `operator_name`
+- `is_active`
+
 ### GET `/api/v1/routes/{route_id}`
 
 Returns a single route.
+
+### GET `/api/v1/routes/code/{route_code}`
+
+Returns a single route by public route code.
 
 ### POST `/api/v1/routes`
 
@@ -141,6 +166,16 @@ Admin only. Deletes a route.
 ### GET `/api/v1/incidents`
 
 Public read access to incidents.
+
+Supported filters:
+
+- `route_id`
+- `station_id`
+- `incident_type`
+- `severity`
+- `status`
+- `reported_from`
+- `reported_to`
 
 ### GET `/api/v1/incidents/{incident_id}`
 
@@ -194,6 +229,14 @@ Example response:
 ### GET `/api/v1/analytics/routes/{route_id}/average-delay`
 
 Returns the average delay in minutes for journeys with known delay values.
+
+### GET `/api/v1/analytics/routes/by-code/{route_code}/reliability`
+
+Returns route reliability using the public route code instead of the internal numeric ID.
+
+### GET `/api/v1/analytics/routes/by-code/{route_code}/average-delay`
+
+Returns average delay using the public route code instead of the internal numeric ID.
 
 ### GET `/api/v1/analytics/delay-patterns/hourly`
 
