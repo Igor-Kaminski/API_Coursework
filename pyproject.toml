@@ -11,6 +11,7 @@ requires-python = ">=3.11"
 dependencies = [
   "alembic>=1.16.5",
   "fastapi>=0.116.1",
+  "mcp>=1.26.0",
   "pydantic-settings>=2.10.1",
   "psycopg[binary]>=3.2.9",
   "python-dotenv>=1.1.1",
@@ -29,6 +30,9 @@ dev = [
 minversion = "8.0"
 addopts = "-q"
 testpaths = ["tests"]
+
+[project.scripts]
+rail-api-mcp = "app.mcp.server:main"
 
 [tool.setuptools.packages.find]
 include = ["app*"]
