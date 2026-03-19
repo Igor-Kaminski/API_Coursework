@@ -7,6 +7,8 @@ from pathlib import Path
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.models.incident import Incident
+from app.models.route import Route
 from app.models.station import Station
 from app.services.import_types import ImportResult, StationImportRecord
 
@@ -49,6 +51,8 @@ class StationImportService:
                 "longitude",
             ):
                 value = getattr(record, field)
+                if field in {"code", "crs_code"} and value is not None:
+                    self._merge_conflicting_station(db, station, value)
                 if value is not None and getattr(station, field) != value:
                     setattr(station, field, value)
                     changed = True
@@ -94,6 +98,26 @@ class StationImportService:
         return db.scalar(
             select(Station).where(func.lower(Station.name) == record.name.lower())
         )
+
+    def _merge_conflicting_station(self, db: Session, target_station: Station, code_value: str) -> None:
+        conflict = db.scalar(
+            select(Station).where(
+                Station.id != target_station.id,
+                func.lower(Station.code) == code_value.lower(),
+            )
+        )
+        if conflict is None:
+            return
+
+        for route in db.scalars(select(Route).where(Route.origin_station_id == conflict.id)):
+            route.origin_station_id = target_station.id
+        for route in db.scalars(select(Route).where(Route.destination_station_id == conflict.id)):
+            route.destination_station_id = target_station.id
+        for incident in db.scalars(select(Incident).where(Incident.station_id == conflict.id)):
+            incident.station_id = target_station.id
+
+        db.delete(conflict)
+        db.flush()
 
     def _load_csv(self, path: Path) -> list[StationImportRecord]:
         with path.open("r", encoding="utf-8", newline="") as handle:

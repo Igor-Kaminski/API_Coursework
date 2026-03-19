@@ -5,13 +5,18 @@ from app.services.dtd_reference_service import DTDReferenceService
 
 MSN_CONTENT = """A    LONDON WATERLOO               3WATRLMNWAT   WAT15312 6179815                 
 A    EXETER ST DAVIDS              2EXETRSDEXD   EXD12911 60933 6                 
+A    ABERDARE                      0ABDARE ABA   ABA13004 62027 3                 
 """
 
 
 def test_dtd_reference_service_updates_tiploc_rows_and_route_names(db_session) -> None:
+    duplicate = Station(name="Aberdare", code="ABA")
+    db_session.add(duplicate)
+
     origin = Station(name="WATRLMN", code=None, tiploc_code="WATRLMN")
     destination = Station(name="EXETRSD", code=None, tiploc_code="EXETRSD")
-    db_session.add_all([origin, destination])
+    aberdare_tiploc = Station(name="ABDARE", code=None, tiploc_code="ABDARE")
+    db_session.add_all([origin, destination, aberdare_tiploc])
     db_session.flush()
 
     route = Route(
@@ -33,7 +38,7 @@ def test_dtd_reference_service_updates_tiploc_rows_and_route_names(db_session) -
     db_session.refresh(destination)
     db_session.refresh(route)
 
-    assert station_result.updated == 2
+    assert station_result.updated == 3
     assert origin.name == "London Waterloo"
     assert origin.code == "WAT"
     assert origin.crs_code == "WAT"
@@ -41,3 +46,6 @@ def test_dtd_reference_service_updates_tiploc_rows_and_route_names(db_session) -
     assert destination.code == "EXD"
     assert renamed_routes == 1
     assert route.name == "London Waterloo to Exeter St Davids"
+    assert db_session.get(Station, duplicate.id) is None
+    assert aberdare_tiploc.name == "Aberdare"
+    assert aberdare_tiploc.code == "ABA"
