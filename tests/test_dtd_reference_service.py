@@ -48,6 +48,45 @@ def test_dtd_reference_service_updates_tiploc_rows_and_route_names(db_session) -
     assert destination.tiploc_code == "EXETRSD"
     assert renamed_routes == 1
     assert route.name == "London Waterloo to Exeter St Davids"
-    assert db_session.get(Station, duplicate.id) is None
-    assert aberdare_tiploc.name == "Aberdare"
-    assert aberdare_tiploc.code == "ABA"
+    db_session.refresh(duplicate)
+    assert duplicate.name == "Aberdare"
+    assert duplicate.code == "ABA"
+    assert duplicate.tiploc_code == "ABDARE"
+    assert db_session.get(Station, aberdare_tiploc.id) is None
+
+
+def test_dtd_reference_service_collapses_alias_tiplocs_by_crs(db_session) -> None:
+    alias_one = Station(name="BCKNBUS", code="BCKNBUS", tiploc_code=None)
+    alias_two = Station(name="BCKNHMJ", code="BCKNHMJ", tiploc_code=None)
+    canonical = Station(name="Beckenham Junction", code="BKJ")
+    db_session.add_all([alias_one, alias_two, canonical])
+    db_session.flush()
+
+    route = Route(
+        origin_station_id=alias_one.id,
+        destination_station_id=alias_two.id,
+        name="BCKNBUS to BCKNHMJ",
+        code="BCKNBUS-BCKNHMJ",
+        operator_name="SE",
+        is_active=True,
+    )
+    db_session.add(route)
+    db_session.commit()
+
+    service = DTDReferenceService()
+    records = service._parse_msn_records(
+        "A    BECKENHAM JUNCTION            9BCKNBUSBKJ   BKJ15373 61699 5                 \n"
+        "A    BECKENHAM JUNCTION            2BCKNHMJBKJ   BKJ15373 61699 5                 \n"
+    )
+    station_result, renamed_routes = service.enrich_database(db_session, records)
+
+    db_session.refresh(canonical)
+    db_session.refresh(route)
+
+    assert station_result.updated == 1
+    assert db_session.get(Station, alias_one.id) is None
+    assert db_session.get(Station, alias_two.id) is None
+    assert route.origin_station_id == canonical.id
+    assert route.destination_station_id == canonical.id
+    assert route.name == "Beckenham Junction to Beckenham Junction"
+    assert renamed_routes == 1

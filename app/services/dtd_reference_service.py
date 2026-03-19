@@ -7,6 +7,8 @@ from urllib.request import Request, urlopen
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.models.incident import Incident
+from app.models.route import Route
 from app.models.station import Station
 from app.services.import_types import ImportResult, StationImportRecord
 from app.services.route_naming_service import RouteNamingService
@@ -42,6 +44,8 @@ class DTDReferenceService:
         filtered_records = [
             record for record in records if record.tiploc_code and record.tiploc_code in existing_tiplocs
         ]
+        self._collapse_alias_stations(db, filtered_records)
+        filtered_records = self._deduplicate_records(filtered_records)
 
         station_result = StationImportService().import_records(db, filtered_records)
         renamed_routes = RouteNamingService().refresh_route_names(db)
@@ -58,6 +62,58 @@ class DTDReferenceService:
         )
         for station in stations:
             station.tiploc_code = station.code
+        db.flush()
+
+    def _deduplicate_records(self, records: list[StationImportRecord]) -> list[StationImportRecord]:
+        deduped: dict[str, StationImportRecord] = {}
+        for record in records:
+            key = record.crs_code or record.code or record.tiploc_code or record.name
+            deduped.setdefault(key, record)
+        return list(deduped.values())
+
+    def _collapse_alias_stations(self, db: Session, records: list[StationImportRecord]) -> None:
+        grouped: dict[str, list[StationImportRecord]] = {}
+        for record in records:
+            if record.crs_code:
+                grouped.setdefault(record.crs_code, []).append(record)
+
+        for crs_code, group_records in grouped.items():
+            tiplocs = [record.tiploc_code for record in group_records if record.tiploc_code]
+            stations = list(
+                db.scalars(
+                    select(Station).where(
+                        (Station.code == crs_code)
+                        | (Station.crs_code == crs_code)
+                        | (Station.tiploc_code.in_(tiplocs) if tiplocs else False)
+                    )
+                )
+            )
+            if len(stations) <= 1:
+                continue
+
+            canonical = next(
+                (station for station in stations if station.code == crs_code or station.crs_code == crs_code),
+                stations[0],
+            )
+            for station in stations:
+                if station.id == canonical.id:
+                    continue
+                self._merge_station_into(db, station, canonical)
+        db.flush()
+
+    def _merge_station_into(self, db: Session, source: Station, target: Station) -> None:
+        for route in db.scalars(select(Route).where(Route.origin_station_id == source.id)):
+            route.origin_station_id = target.id
+        for route in db.scalars(select(Route).where(Route.destination_station_id == source.id)):
+            route.destination_station_id = target.id
+        for incident in db.scalars(select(Incident).where(Incident.station_id == source.id)):
+            incident.station_id = target.id
+
+        source.code = None
+        source.crs_code = None
+        source.tiploc_code = None
+        db.flush()
+        db.delete(source)
         db.flush()
 
     def _parse_msn_records(self, content: str) -> list[StationImportRecord]:
