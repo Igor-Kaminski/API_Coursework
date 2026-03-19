@@ -15,6 +15,7 @@ dependencies = [
   "pydantic-settings>=2.10.1",
   "psycopg[binary]>=3.2.9",
   "python-dotenv>=1.1.1",
+  "slowapi>=0.1.9",
   "sqlalchemy>=2.0.43",
   "uvicorn[standard]>=0.35.0",
 ]
@@ -28,8 +29,15 @@ dev = [
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-addopts = "-q"
+addopts = "-q --cov=app --cov-report=term-missing"
 testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["app"]
+
+[tool.coverage.report]
+skip_covered = false
+show_missing = true
 
 [project.scripts]
 rail-api-mcp = "app.mcp.server:main"

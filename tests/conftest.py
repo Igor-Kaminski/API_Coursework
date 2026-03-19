@@ -4,11 +4,12 @@ from decimal import Decimal
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.core.database import get_db_session
+import app.main as app_main
 from app.main import app
 from app.db.base import Base
 from app.models.incident import Incident
@@ -41,8 +42,12 @@ TestingSessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=Fals
 def reset_database() -> Generator[None, None, None]:
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
+    if hasattr(app.state, "limiter"):
+        app.state.limiter.reset()
     yield
     Base.metadata.drop_all(bind=engine)
+    if hasattr(app.state, "limiter"):
+        app.state.limiter.reset()
 
 
 @pytest.fixture
@@ -59,9 +64,16 @@ def client(db_session: Session) -> Generator[TestClient, None, None]:
     def override_get_db() -> Generator[Session, None, None]:
         yield db_session
 
+    def test_ping_database() -> None:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+
     app.dependency_overrides[get_db_session] = override_get_db
+    original_ping_database = app_main.ping_database
+    app_main.ping_database = test_ping_database
     with TestClient(app) as test_client:
         yield test_client
+    app_main.ping_database = original_ping_database
     app.dependency_overrides.clear()
 
 

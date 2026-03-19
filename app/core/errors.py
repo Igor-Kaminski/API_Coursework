@@ -3,12 +3,18 @@ from __future__ import annotations
 from collections.abc import Sequence
 from datetime import datetime
 from http import HTTPStatus
+import logging
 from typing import Any
 
 from fastapi import HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from slowapi.errors import RateLimitExceeded
+from sqlalchemy.exc import SQLAlchemyError
+
+
+logger = logging.getLogger(__name__)
 
 
 class ErrorBody(BaseModel):
@@ -28,7 +34,10 @@ STATUS_ERROR_CODES = {
     status.HTTP_403_FORBIDDEN: "forbidden",
     status.HTTP_404_NOT_FOUND: "not_found",
     status.HTTP_409_CONFLICT: "conflict",
+    status.HTTP_429_TOO_MANY_REQUESTS: "rate_limited",
     status.HTTP_422_UNPROCESSABLE_CONTENT: "validation_error",
+    status.HTTP_500_INTERNAL_SERVER_ERROR: "internal_error",
+    status.HTTP_503_SERVICE_UNAVAILABLE: "service_unavailable",
 }
 
 
@@ -137,5 +146,49 @@ async def validation_exception_handler(
         "request validation failed",
         code="validation_error",
         details=details,
+        path=request.url.path,
+    )
+
+
+def rate_limit_exception_handler(
+    request: Request,
+    exc: RateLimitExceeded,
+) -> JSONResponse:
+    response = error_response(
+        status.HTTP_429_TOO_MANY_REQUESTS,
+        f"rate limit exceeded: {exc.detail}",
+        code="rate_limited",
+        path=request.url.path,
+    )
+    if hasattr(request.app.state, "limiter") and hasattr(request.state, "view_rate_limit"):
+        response = request.app.state.limiter._inject_headers(
+            response,
+            request.state.view_rate_limit,
+        )
+    return response
+
+
+async def database_exception_handler(
+    request: Request,
+    exc: SQLAlchemyError,
+) -> JSONResponse:
+    logger.exception("Database error while handling request %s", request.url.path, exc_info=exc)
+    return error_response(
+        status.HTTP_500_INTERNAL_SERVER_ERROR,
+        "database operation failed",
+        code="database_error",
+        path=request.url.path,
+    )
+
+
+async def unexpected_exception_handler(
+    request: Request,
+    exc: Exception,
+) -> JSONResponse:
+    logger.exception("Unexpected error while handling request %s", request.url.path, exc_info=exc)
+    return error_response(
+        status.HTTP_500_INTERNAL_SERVER_ERROR,
+        "internal server error",
+        code="internal_error",
         path=request.url.path,
     )

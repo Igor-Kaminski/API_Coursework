@@ -1,6 +1,7 @@
 from collections.abc import Generator
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import get_settings
@@ -28,3 +29,15 @@ def get_db_session() -> Generator[Session, None, None]:
         yield session
     finally:
         session.close()
+
+
+def ping_database() -> None:
+    with engine.connect() as connection:
+        connection.execute(text("SELECT 1"))
+
+
+def dispose_engine() -> None:
+    try:
+        engine.dispose()
+    except SQLAlchemyError:
+        pass
