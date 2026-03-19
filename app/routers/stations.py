@@ -1,12 +1,15 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db_session
+from app.core.errors import api_error, normalize_lookup_value
 from app.core.security import AuthContext, Role, require_roles
+from app.models.incident import Incident
+from app.models.route import Route
 from app.models.station import Station
 from app.schemas.station import StationCreate, StationRead, StationUpdate
 
@@ -26,6 +29,12 @@ def list_stations(
     crs_code: str | None = Query(default=None),
     tiploc_code: str | None = Query(default=None),
 ) -> list[Station]:
+    code = normalize_lookup_value(code)
+    name = normalize_lookup_value(name)
+    city = normalize_lookup_value(city)
+    crs_code = normalize_lookup_value(crs_code)
+    tiploc_code = normalize_lookup_value(tiploc_code)
+
     query = select(Station)
     if code:
         query = query.where(func.lower(Station.code) == code.lower())
@@ -43,14 +52,13 @@ def list_stations(
 
 @router.get("/code/{station_code}", response_model=StationRead)
 def get_station_by_code(station_code: str, db: DBSession) -> Station:
-    station = db.scalar(
-        select(Station).where(func.lower(Station.code) == station_code.lower())
-    )
+    station_code = normalize_lookup_value(station_code)
+    if station_code is None:
+        raise api_error(status.HTTP_404_NOT_FOUND, "station not found")
+
+    station = db.scalar(select(Station).where(func.lower(Station.code) == station_code.lower()))
     if station is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="station not found",
-        )
+        raise api_error(status.HTTP_404_NOT_FOUND, "station not found")
     return station
 
 
@@ -58,10 +66,7 @@ def get_station_by_code(station_code: str, db: DBSession) -> Station:
 def get_station(station_id: int, db: DBSession) -> Station:
     station = db.get(Station, station_id)
     if station is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="station not found",
-        )
+        raise api_error(status.HTTP_404_NOT_FOUND, "station not found")
     return station
 
 
@@ -73,9 +78,9 @@ def create_station(payload: StationCreate, db: DBSession, _: AdminRole) -> Stati
         db.commit()
     except IntegrityError as exc:
         db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="station with the same code already exists",
+        raise api_error(
+            status.HTTP_409_CONFLICT,
+            "station with the same code, CRS code, or TIPLOC code already exists",
         ) from exc
 
     db.refresh(station)
@@ -91,10 +96,7 @@ def update_station(
 ) -> Station:
     station = db.get(Station, station_id)
     if station is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="station not found",
-        )
+        raise api_error(status.HTTP_404_NOT_FOUND, "station not found")
 
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(station, field, value)
@@ -103,9 +105,9 @@ def update_station(
         db.commit()
     except IntegrityError as exc:
         db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="station with the same code already exists",
+        raise api_error(
+            status.HTTP_409_CONFLICT,
+            "station with the same code, CRS code, or TIPLOC code already exists",
         ) from exc
 
     db.refresh(station)
@@ -116,11 +118,36 @@ def update_station(
 def delete_station(station_id: int, db: DBSession, _: AdminRole) -> Response:
     station = db.get(Station, station_id)
     if station is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="station not found",
+        raise api_error(status.HTTP_404_NOT_FOUND, "station not found")
+
+    route_reference_count = db.scalar(
+        select(func.count())
+        .select_from(Route)
+        .where((Route.origin_station_id == station_id) | (Route.destination_station_id == station_id))
+    ) or 0
+    incident_reference_count = db.scalar(
+        select(func.count()).select_from(Incident).where(Incident.station_id == station_id)
+    ) or 0
+    if route_reference_count or incident_reference_count:
+        raise api_error(
+            status.HTTP_409_CONFLICT,
+            "station cannot be deleted while it is referenced by routes or incidents",
+            details=[
+                {"field": "routes", "message": f"{route_reference_count} referencing route(s) found"},
+                {
+                    "field": "incidents",
+                    "message": f"{incident_reference_count} referencing incident(s) found",
+                },
+            ],
         )
 
     db.delete(station)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise api_error(
+            status.HTTP_409_CONFLICT,
+            "station cannot be deleted while it is referenced by routes or incidents",
+        ) from exc
     return Response(status_code=status.HTTP_204_NO_CONTENT)

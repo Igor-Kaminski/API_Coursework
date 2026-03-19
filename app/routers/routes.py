@@ -1,12 +1,15 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy import func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, aliased, joinedload
 
 from app.core.database import get_db_session
+from app.core.errors import api_error, normalize_lookup_value
 from app.core.security import AuthContext, Role, require_roles
+from app.models.incident import Incident
+from app.models.journey_record import JourneyRecord
 from app.models.route import Route
 from app.models.station import Station
 from app.schemas.route import RouteCreate, RouteRead, RouteUpdate
@@ -18,16 +21,10 @@ AdminRole = Annotated[AuthContext, Depends(require_roles(Role.ADMIN))]
 
 def validate_station_ids(db: Session, origin_station_id: int, destination_station_id: int) -> None:
     if db.get(Station, origin_station_id) is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="origin station not found",
-        )
+        raise api_error(status.HTTP_404_NOT_FOUND, "origin station not found")
 
     if db.get(Station, destination_station_id) is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="destination station not found",
-        )
+        raise api_error(status.HTTP_404_NOT_FOUND, "destination station not found")
 
 
 @router.get("", response_model=list[RouteRead])
@@ -42,6 +39,12 @@ def list_routes(
     operator_name: str | None = Query(default=None),
     is_active: bool | None = Query(default=None),
 ) -> list[Route]:
+    code = normalize_lookup_value(code)
+    name = normalize_lookup_value(name)
+    origin = normalize_lookup_value(origin)
+    destination = normalize_lookup_value(destination)
+    operator_name = normalize_lookup_value(operator_name)
+
     origin_station_alias = aliased(Station)
     destination_station_alias = aliased(Station)
     query = (
@@ -81,6 +84,10 @@ def list_routes(
 
 @router.get("/code/{route_code}", response_model=RouteRead)
 def get_route_by_code(route_code: str, db: DBSession) -> Route:
+    route_code = normalize_lookup_value(route_code)
+    if route_code is None:
+        raise api_error(status.HTTP_404_NOT_FOUND, "route not found")
+
     query = (
         select(Route)
         .options(
@@ -91,10 +98,7 @@ def get_route_by_code(route_code: str, db: DBSession) -> Route:
     )
     route = db.scalar(query)
     if route is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="route not found",
-        )
+        raise api_error(status.HTTP_404_NOT_FOUND, "route not found")
     return route
 
 
@@ -110,10 +114,7 @@ def get_route(route_id: int, db: DBSession) -> Route:
     )
     route = db.scalar(query)
     if route is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="route not found",
-        )
+        raise api_error(status.HTTP_404_NOT_FOUND, "route not found")
     return route
 
 
@@ -127,10 +128,7 @@ def create_route(payload: RouteCreate, db: DBSession, _: AdminRole) -> Route:
         db.commit()
     except IntegrityError as exc:
         db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="duplicate route definition",
-        ) from exc
+        raise api_error(status.HTTP_409_CONFLICT, "duplicate route definition") from exc
 
     refreshed = db.scalar(
         select(Route)
@@ -150,10 +148,7 @@ def update_route(
 ) -> Route:
     route = db.get(Route, route_id)
     if route is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="route not found",
-        )
+        raise api_error(status.HTTP_404_NOT_FOUND, "route not found")
 
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(route, field, value)
@@ -164,10 +159,7 @@ def update_route(
         db.commit()
     except IntegrityError as exc:
         db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="duplicate route definition",
-        ) from exc
+        raise api_error(status.HTTP_409_CONFLICT, "duplicate route definition") from exc
 
     refreshed = db.scalar(
         select(Route)
@@ -182,11 +174,37 @@ def update_route(
 def delete_route(route_id: int, db: DBSession, _: AdminRole) -> Response:
     route = db.get(Route, route_id)
     if route is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="route not found",
+        raise api_error(status.HTTP_404_NOT_FOUND, "route not found")
+
+    journey_reference_count = db.scalar(
+        select(func.count()).select_from(JourneyRecord).where(JourneyRecord.route_id == route_id)
+    ) or 0
+    incident_reference_count = db.scalar(
+        select(func.count()).select_from(Incident).where(Incident.route_id == route_id)
+    ) or 0
+    if journey_reference_count or incident_reference_count:
+        raise api_error(
+            status.HTTP_409_CONFLICT,
+            "route cannot be deleted while it is referenced by journey records or incidents",
+            details=[
+                {
+                    "field": "journey_records",
+                    "message": f"{journey_reference_count} referencing journey record(s) found",
+                },
+                {
+                    "field": "incidents",
+                    "message": f"{incident_reference_count} referencing incident(s) found",
+                },
+            ],
         )
 
     db.delete(route)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise api_error(
+            status.HTTP_409_CONFLICT,
+            "route cannot be deleted while it is referenced by journey records or incidents",
+        ) from exc
     return Response(status_code=status.HTTP_204_NO_CONTENT)

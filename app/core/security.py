@@ -3,9 +3,10 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import Annotated
 
-from fastapi import Depends, Header, HTTPException, status
+from fastapi import Depends, Header, status
 
 from app.core.config import get_settings
+from app.core.errors import api_error
 
 
 class Role(StrEnum):
@@ -32,17 +33,11 @@ def get_auth_context(
     x_api_key: Annotated[str | None, Header(alias="X-API-Key")] = None,
 ) -> AuthContext:
     if x_api_key is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="missing X-API-Key header",
-        )
+        raise api_error(status.HTTP_401_UNAUTHORIZED, "missing X-API-Key header")
 
     role = _role_lookup().get(x_api_key)
     if role is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="invalid API key",
-        )
+        raise api_error(status.HTTP_401_UNAUTHORIZED, "invalid API key")
 
     return AuthContext(role=role)
 
@@ -52,10 +47,7 @@ def require_roles(*allowed_roles: Role) -> Callable[[AuthContext], AuthContext]:
         auth: Annotated[AuthContext, Depends(get_auth_context)],
     ) -> AuthContext:
         if auth.role not in allowed_roles:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="insufficient permissions",
-            )
+            raise api_error(status.HTTP_403_FORBIDDEN, "insufficient permissions")
         return auth
 
     return dependency

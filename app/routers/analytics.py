@@ -1,10 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db_session
+from app.core.errors import api_error, normalize_lookup_value, validate_limit
 from app.models.route import Route
 from app.schemas.analytics import (
     DelayPatternPointRead,
@@ -24,19 +25,17 @@ analytics_service = AnalyticsService()
 
 def _require_route(db: Session, route_id: int) -> None:
     if db.get(Route, route_id) is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="route not found",
-        )
+        raise api_error(status.HTTP_404_NOT_FOUND, "route not found")
 
 
 def _get_route_by_code(db: Session, route_code: str) -> Route:
+    route_code = normalize_lookup_value(route_code)
+    if route_code is None:
+        raise api_error(status.HTTP_404_NOT_FOUND, "route not found")
+
     route = db.scalar(select(Route).where(Route.code.ilike(route_code)))
     if route is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="route not found",
-        )
+        raise api_error(status.HTTP_404_NOT_FOUND, "route not found")
     return route
 
 
@@ -75,7 +74,11 @@ def get_daily_delay_patterns(db: DBSession) -> list[DelayPatternPointRead]:
 
 
 @router.get("/stations/hotspots", response_model=list[StationHotspotRead])
-def get_station_hotspots(db: DBSession, limit: int = 10) -> list[StationHotspotRead]:
+def get_station_hotspots(
+    db: DBSession,
+    limit: int = Query(default=10, ge=1, le=100),
+) -> list[StationHotspotRead]:
+    validate_limit(limit)
     return analytics_service.get_station_hotspots(db, limit=limit)
 
 
@@ -87,8 +90,9 @@ def get_incident_frequency(db: DBSession) -> list[IncidentFrequencyPointRead]:
 @router.get("/delay-reasons/common", response_model=list[DelayReasonFrequencyRead])
 def get_common_delay_reasons(
     db: DBSession,
-    limit: int = 10,
+    limit: int = Query(default=10, ge=1, le=100),
 ) -> list[DelayReasonFrequencyRead]:
+    validate_limit(limit)
     return analytics_service.get_common_delay_reasons(db, limit=limit)
 
 
@@ -98,6 +102,7 @@ def get_common_delay_reasons(
 )
 def get_route_name_coverage(
     db: DBSession,
-    limit: int = 10,
+    limit: int = Query(default=10, ge=1, le=100),
 ) -> RouteNameCoverageRead:
+    validate_limit(limit)
     return analytics_service.get_route_name_coverage(db, limit=limit)

@@ -1,11 +1,12 @@
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db_session
+from app.core.errors import api_error, normalize_lookup_value, validate_datetime_range
 from app.core.security import AuthContext, Role, require_roles
 from app.models.incident import Incident
 from app.models.route import Route
@@ -26,22 +27,16 @@ OperatorRole = Annotated[
 
 def validate_related_entities(db: Session, route_id: int | None, station_id: int | None) -> None:
     if route_id is None and station_id is None:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="either route_id or station_id must be provided",
+        raise api_error(
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            "either route_id or station_id must be provided",
         )
 
     if route_id is not None and db.get(Route, route_id) is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="route not found",
-        )
+        raise api_error(status.HTTP_404_NOT_FOUND, "route not found")
 
     if station_id is not None and db.get(Station, station_id) is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="station not found",
-        )
+        raise api_error(status.HTTP_404_NOT_FOUND, "station not found")
 
 
 @router.get("", response_model=list[IncidentRead])
@@ -57,6 +52,11 @@ def list_incidents(
     reported_from: datetime | None = Query(default=None),
     reported_to: datetime | None = Query(default=None),
 ) -> list[Incident]:
+    incident_type = normalize_lookup_value(incident_type)
+    severity = normalize_lookup_value(severity)
+    status_value = normalize_lookup_value(status_value)
+    validate_datetime_range(reported_from, reported_to)
+
     query = select(Incident)
     if route_id is not None:
         query = query.where(Incident.route_id == route_id)
@@ -80,10 +80,7 @@ def list_incidents(
 def get_incident(incident_id: int, db: DBSession) -> Incident:
     incident = db.get(Incident, incident_id)
     if incident is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="incident not found",
-        )
+        raise api_error(status.HTTP_404_NOT_FOUND, "incident not found")
     return incident
 
 
@@ -107,10 +104,7 @@ def update_incident(
 ) -> Incident:
     incident = db.get(Incident, incident_id)
     if incident is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="incident not found",
-        )
+        raise api_error(status.HTTP_404_NOT_FOUND, "incident not found")
 
     updates = payload.model_dump(exclude_unset=True)
     for field, value in updates.items():
@@ -127,10 +121,7 @@ def update_incident(
 def delete_incident(incident_id: int, db: DBSession, _: OperatorRole) -> Response:
     incident = db.get(Incident, incident_id)
     if incident is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="incident not found",
-        )
+        raise api_error(status.HTTP_404_NOT_FOUND, "incident not found")
 
     db.delete(incident)
     db.commit()
