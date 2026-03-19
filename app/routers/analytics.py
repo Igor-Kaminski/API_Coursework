@@ -7,6 +7,8 @@ from app.core.database import get_db_session
 from app.models.route import Route
 from app.schemas.analytics import (
     DelayPatternPointRead,
+    DelayReasonFrequencyRead,
+    IncidentFrequencyPointRead,
     RouteAverageDelayRead,
     RouteReliabilityRead,
     StationHotspotRead,
@@ -51,3 +53,16 @@ def get_daily_delay_patterns(db: DBSession) -> list[DelayPatternPointRead]:
 @router.get("/stations/hotspots", response_model=list[StationHotspotRead])
 def get_station_hotspots(db: DBSession, limit: int = 10) -> list[StationHotspotRead]:
     return analytics_service.get_station_hotspots(db, limit=limit)
+
+
+@router.get("/incidents/frequency", response_model=list[IncidentFrequencyPointRead])
+def get_incident_frequency(db: DBSession) -> list[IncidentFrequencyPointRead]:
+    return analytics_service.get_incident_frequency(db)
+
+
+@router.get("/delay-reasons/common", response_model=list[DelayReasonFrequencyRead])
+def get_common_delay_reasons(
+    db: DBSession,
+    limit: int = 10,
+) -> list[DelayReasonFrequencyRead]:
+    return analytics_service.get_common_delay_reasons(db, limit=limit)
