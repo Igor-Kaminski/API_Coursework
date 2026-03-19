@@ -17,6 +17,7 @@ The API does not query Darwin, KB, or HSP at request time. External rail feeds a
 - role-protected incident create/update/delete flows
 - modular import services for station, route, and journey datasets
 - analytics for route reliability, average delay, delay patterns, station hotspots, incident frequency, and common delay reasons
+- a separate MCP server with lookup, analytics, and guarded write tools
 - FastAPI Swagger docs at `/docs`
 - versioned Alembic migrations
 - pytest coverage for incident APIs, analytics, and import services
@@ -38,6 +39,7 @@ The API does not query Darwin, KB, or HSP at request time. External rail feeds a
 app/
   core/        config, database, security
   db/          SQLAlchemy base and model registration
+  mcp/         MCP server, tools, prompts, and resources
   models/      ORM models
   routers/     API endpoint groups
   schemas/     Pydantic request/response models
@@ -87,6 +89,12 @@ tests/         automated test suite
    - Swagger UI: `http://127.0.0.1:8000/docs`
    - ReDoc: `http://127.0.0.1:8000/redoc`
 
+8. Run the MCP server when you want model-tool access over the same database:
+
+   ```bash
+   ./.venv/bin/python scripts/run_mcp_server.py
+   ```
+
 ## Environment Variables
 
 Minimum required variables are documented in `.env.example`:
@@ -99,6 +107,8 @@ Minimum required variables are documented in `.env.example`:
 - optional rail-source settings for KB, Darwin, and HSP import workflows
 
 Do not commit real credentials. Keep only placeholder values in tracked files.
+
+The MCP server uses the same database and API-key values. No extra secrets are required.
 
 ## Authentication Model
 
@@ -144,6 +154,44 @@ Useful list filters:
 - stations: `code`, `name`, `city`, `crs_code`, `tiploc_code`
 - routes: `code`, `name`, `origin`, `destination`, `operator_name`, `is_active`
 - incidents: `route_id`, `station_id`, `incident_type`, `severity`, `status`, `reported_from`, `reported_to`
+
+## MCP Server
+
+The repository now includes a separate MCP server so MCP-compatible clients can query the same PostgreSQL-backed dataset without going through HTTP endpoints.
+
+- default transport: `stdio`
+- alternate transports: `sse` and `streamable-http`
+- entrypoints:
+  - `./.venv/bin/python scripts/run_mcp_server.py`
+  - `./.venv/bin/python -m app.mcp.server`
+  - `rail-api-mcp`
+
+Useful examples:
+
+```bash
+# stdio transport for local MCP clients
+./.venv/bin/python scripts/run_mcp_server.py
+
+# streamable HTTP transport on a custom port
+./.venv/bin/python scripts/run_mcp_server.py --transport streamable-http --port 8010
+```
+
+Tool coverage includes:
+
+- station lookup and admin CRUD
+- route lookup and admin CRUD
+- incident lookup and CRUD with the same role rules as the HTTP API
+- analytics tools for route reliability, average delay, delay patterns, hotspots, incident frequency, delay reasons, and coverage summaries
+- MCP resources for overview, auth model, tool guide, and current data coverage
+- MCP prompts for route-delay investigation and incident triage
+
+Mutating MCP tools accept an `api_key` argument and enforce the same coursework role model as the FastAPI app:
+
+- station and route writes: admin key only
+- incident creation: user, operator, or admin key
+- incident update/delete: operator or admin key
+
+More detailed MCP usage notes live in `docs/mcp_server.md`.
 
 ## Import Workflow
 
