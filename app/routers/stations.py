@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -20,9 +20,26 @@ def list_stations(
     db: DBSession,
     limit: int = Query(default=100, ge=1, le=500),
     offset: int = Query(default=0, ge=0),
+    code: str | None = Query(default=None),
 ) -> list[Station]:
-    query = select(Station).order_by(Station.name).limit(limit).offset(offset)
+    query = select(Station)
+    if code:
+        query = query.where(func.lower(Station.code) == code.lower())
+    query = query.order_by(Station.name).limit(limit).offset(offset)
     return list(db.scalars(query))
+
+
+@router.get("/code/{station_code}", response_model=StationRead)
+def get_station_by_code(station_code: str, db: DBSession) -> Station:
+    station = db.scalar(
+        select(Station).where(func.lower(Station.code) == station_code.lower())
+    )
+    if station is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="station not found",
+        )
+    return station
 
 
 @router.get("/{station_id}", response_model=StationRead)

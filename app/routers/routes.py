@@ -1,9 +1,9 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
-from sqlalchemy import select
+from sqlalchemy import func, or_, select
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, aliased, joinedload
 
 from app.core.database import get_db_session
 from app.core.security import AuthContext, Role, require_roles
@@ -35,18 +35,64 @@ def list_routes(
     db: DBSession,
     limit: int = Query(default=100, ge=1, le=500),
     offset: int = Query(default=0, ge=0),
+    code: str | None = Query(default=None),
+    name: str | None = Query(default=None),
+    origin: str | None = Query(default=None),
+    destination: str | None = Query(default=None),
+    operator_name: str | None = Query(default=None),
 ) -> list[Route]:
+    origin_station_alias = aliased(Station)
+    destination_station_alias = aliased(Station)
     query = (
         select(Route)
         .options(
             joinedload(Route.origin_station),
             joinedload(Route.destination_station),
         )
-        .order_by(Route.name)
-        .limit(limit)
-        .offset(offset)
     )
+    if code:
+        query = query.where(func.lower(Route.code) == code.lower())
+    if name:
+        query = query.where(func.lower(Route.name).contains(name.lower()))
+    if operator_name:
+        query = query.where(func.lower(Route.operator_name) == operator_name.lower())
+    if origin:
+        query = query.join(origin_station_alias, Route.origin_station).where(
+            or_(
+                func.lower(origin_station_alias.code) == origin.lower(),
+                func.lower(origin_station_alias.crs_code) == origin.lower(),
+                func.lower(origin_station_alias.tiploc_code) == origin.lower(),
+            )
+        )
+    if destination:
+        query = query.join(destination_station_alias, Route.destination_station).where(
+            or_(
+                func.lower(destination_station_alias.code) == destination.lower(),
+                func.lower(destination_station_alias.crs_code) == destination.lower(),
+                func.lower(destination_station_alias.tiploc_code) == destination.lower(),
+            )
+        )
+    query = query.order_by(Route.name).limit(limit).offset(offset)
     return list(db.scalars(query))
+
+
+@router.get("/code/{route_code}", response_model=RouteRead)
+def get_route_by_code(route_code: str, db: DBSession) -> Route:
+    query = (
+        select(Route)
+        .options(
+            joinedload(Route.origin_station),
+            joinedload(Route.destination_station),
+        )
+        .where(func.lower(Route.code) == route_code.lower())
+    )
+    route = db.scalar(query)
+    if route is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="route not found",
+        )
+    return route
 
 
 @router.get("/{route_id}", response_model=RouteRead)
