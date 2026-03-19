@@ -13,9 +13,9 @@ def test_dtd_reference_service_updates_tiploc_rows_and_route_names(db_session) -
     duplicate = Station(name="Aberdare", code="ABA")
     db_session.add(duplicate)
 
-    origin = Station(name="WATRLMN", code=None, tiploc_code="WATRLMN")
-    destination = Station(name="EXETRSD", code=None, tiploc_code="EXETRSD")
-    aberdare_tiploc = Station(name="ABDARE", code=None, tiploc_code="ABDARE")
+    origin = Station(name="WATRLMN", code="WATRLMN", tiploc_code=None)
+    destination = Station(name="EXETRSD", code="EXETRSD", tiploc_code=None)
+    aberdare_tiploc = Station(name="ABDARE", code="ABDARE", tiploc_code=None)
     db_session.add_all([origin, destination, aberdare_tiploc])
     db_session.flush()
 
@@ -41,9 +41,11 @@ def test_dtd_reference_service_updates_tiploc_rows_and_route_names(db_session) -
     assert station_result.updated == 3
     assert origin.name == "London Waterloo"
     assert origin.code == "WAT"
+    assert origin.tiploc_code == "WATRLMN"
     assert origin.crs_code == "WAT"
     assert destination.name == "Exeter St Davids"
     assert destination.code == "EXD"
+    assert destination.tiploc_code == "EXETRSD"
     assert renamed_routes == 1
     assert route.name == "London Waterloo to Exeter St Davids"
     assert db_session.get(Station, duplicate.id) is None

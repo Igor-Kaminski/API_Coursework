@@ -4,7 +4,7 @@ import zipfile
 from io import BytesIO
 from urllib.request import Request, urlopen
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models.station import Station
@@ -33,6 +33,7 @@ class DTDReferenceService:
         db: Session,
         records: list[StationImportRecord],
     ) -> tuple[ImportResult, int]:
+        self._backfill_legacy_tiploc_codes(db)
         existing_tiplocs = {
             value
             for value in db.scalars(select(Station.tiploc_code).where(Station.tiploc_code.is_not(None)))
@@ -45,6 +46,19 @@ class DTDReferenceService:
         station_result = StationImportService().import_records(db, filtered_records)
         renamed_routes = RouteNamingService().refresh_route_names(db)
         return station_result, renamed_routes
+
+    def _backfill_legacy_tiploc_codes(self, db: Session) -> None:
+        stations = db.scalars(
+            select(Station).where(
+                Station.tiploc_code.is_(None),
+                Station.crs_code.is_(None),
+                Station.code.is_not(None),
+                func.length(Station.code) > 3,
+            )
+        )
+        for station in stations:
+            station.tiploc_code = station.code
+        db.flush()
 
     def _parse_msn_records(self, content: str) -> list[StationImportRecord]:
         records: list[StationImportRecord] = []
