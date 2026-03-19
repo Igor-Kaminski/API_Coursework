@@ -14,6 +14,19 @@ def test_station_list_can_filter_by_code(client, seeded_reference_data) -> None:
     assert response.json()[0]["code"] == "YRK"
 
 
+def test_station_list_can_filter_by_name_and_city(client, seeded_reference_data) -> None:
+    by_name = client.get("/api/v1/stations?name=lee")
+    by_city = client.get("/api/v1/stations?city=york")
+
+    assert by_name.status_code == 200
+    assert len(by_name.json()) == 1
+    assert by_name.json()[0]["name"] == "Leeds"
+
+    assert by_city.status_code == 200
+    assert len(by_city.json()) == 1
+    assert by_city.json()[0]["city"] == "York"
+
+
 def test_route_lookup_by_code(client, seeded_reference_data) -> None:
     response = client.get("/api/v1/routes/code/LDS-YRK")
 

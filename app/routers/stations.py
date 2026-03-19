@@ -21,10 +21,16 @@ def list_stations(
     limit: int = Query(default=100, ge=1, le=500),
     offset: int = Query(default=0, ge=0),
     code: str | None = Query(default=None),
+    name: str | None = Query(default=None),
+    city: str | None = Query(default=None),
 ) -> list[Station]:
     query = select(Station)
     if code:
         query = query.where(func.lower(Station.code) == code.lower())
+    if name:
+        query = query.where(func.lower(Station.name).contains(name.lower()))
+    if city:
+        query = query.where(func.lower(Station.city).contains(city.lower()))
     query = query.order_by(Station.name).limit(limit).offset(offset)
     return list(db.scalars(query))
 
