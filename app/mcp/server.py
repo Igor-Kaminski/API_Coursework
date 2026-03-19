@@ -491,14 +491,21 @@ def update_station_impl(
     longitude: Decimal | None = None,
 ) -> dict[str, Any]:
     require_api_role(api_key, Role.ADMIN)
+    payload_data = {
+        key: value
+        for key, value in {
+            "name": name,
+            "code": code,
+            "crs_code": crs_code,
+            "tiploc_code": tiploc_code,
+            "city": city,
+            "latitude": latitude,
+            "longitude": longitude,
+        }.items()
+        if value is not None
+    }
     payload = StationUpdateInput(
-        name=name,
-        code=code,
-        crs_code=crs_code,
-        tiploc_code=tiploc_code,
-        city=city,
-        latitude=latitude,
-        longitude=longitude,
+        **payload_data,
     )
 
     with db_session() as db:
@@ -585,14 +592,21 @@ def update_route_impl(
     is_active: bool | None = None,
 ) -> dict[str, Any]:
     require_api_role(api_key, Role.ADMIN)
+    payload_data = {
+        key: value
+        for key, value in {
+            "origin_station_id": origin_station_id,
+            "destination_station_id": destination_station_id,
+            "name": name,
+            "code": code,
+            "operator_name": operator_name,
+            "distance_km": distance_km,
+            "is_active": is_active,
+        }.items()
+        if value is not None
+    }
     payload = RouteUpdateInput(
-        origin_station_id=origin_station_id,
-        destination_station_id=destination_station_id,
-        name=name,
-        code=code,
-        operator_name=operator_name,
-        distance_km=distance_km,
-        is_active=is_active,
+        **payload_data,
     )
 
     with db_session() as db:
@@ -677,15 +691,22 @@ def update_incident_impl(
     reported_at: datetime | None = None,
 ) -> dict[str, Any]:
     require_api_role(api_key, Role.ADMIN, Role.OPERATOR)
+    payload_data = {
+        key: value
+        for key, value in {
+            "route_id": route_id,
+            "station_id": station_id,
+            "title": title,
+            "description": description,
+            "incident_type": incident_type,
+            "severity": severity,
+            "status": status,
+            "reported_at": reported_at,
+        }.items()
+        if value is not None
+    }
     payload = IncidentUpdateInput(
-        route_id=route_id,
-        station_id=station_id,
-        title=title,
-        description=description,
-        incident_type=incident_type,
-        severity=severity,
-        status=status,
-        reported_at=reported_at,
+        **payload_data,
     )
 
     with db_session() as db:
