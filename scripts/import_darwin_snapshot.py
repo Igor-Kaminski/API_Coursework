@@ -18,8 +18,16 @@ def require_env(name: str) -> str:
     return value
 
 
+def first_env(*names: str, default: str | None = None) -> str | None:
+    for name in names:
+        value = os.getenv(name)
+        if value:
+            return value
+    return default
+
+
 def main() -> None:
-    load_dotenv()
+    load_dotenv(dotenv_path=Path(".env"))
 
     parser = argparse.ArgumentParser(
         description="Fetch and import a Darwin snapshot into the local database."
@@ -46,10 +54,14 @@ def main() -> None:
         snapshot_path = Path(args.snapshot_path)
     else:
         snapshot_path = darwin_service.fetch_latest_snapshot(
-            host=require_env("DARWIN_FTP_HOST"),
-            username=require_env("DARWIN_FTP_USER"),
-            password=require_env("DARWIN_FTP_PASSWORD"),
-            remote_directory=os.getenv("DARWIN_FTP_DIR", "snapshot"),
+            host=first_env("DARWIN_FTP_HOST", "DARWIN_SNAPSHOT_HOST") or require_env("DARWIN_FTP_HOST"),
+            username=first_env("DARWIN_FTP_USER", "DARWIN_SNAPSHOT_USERNAME") or require_env("DARWIN_FTP_USER"),
+            password=first_env("DARWIN_FTP_PASSWORD", "DARWIN_SNAPSHOT_PASSWORD") or require_env("DARWIN_FTP_PASSWORD"),
+            remote_directory=first_env(
+                "DARWIN_FTP_DIR",
+                "DARWIN_SNAPSHOT_DIRECTORY",
+                default="snapshot",
+            ) or "snapshot",
             download_directory=args.download_dir,
         )
 
