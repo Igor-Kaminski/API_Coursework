@@ -2,19 +2,24 @@
 
 Coursework project for `COMP3011 Web Services and Web Data`.
 
-This repository will contain a modular `FastAPI` backend for UK rail reliability and delay analytics. The system separates:
+This project implements a modular `FastAPI` backend for UK rail reliability and delay analytics. The design follows the coursework brief by keeping three responsibilities separate:
 
-- reference data for `stations` and `routes`
-- imported historical/operational data in `journey_records`
+- reference data in `stations` and `routes`
+- imported operational/history data in `journey_records`
 - user-generated operational data in `incidents`
 
-## Planned Features
+The API does not query Darwin, KB, or HSP at request time. External rail feeds are treated as ingestion sources only. Data is imported, normalized, stored in PostgreSQL, and then queried locally for public API responses and analytics.
+
+## Features
 
 - public read endpoints for stations, routes, incidents, and analytics
-- admin-only write endpoints for reference data
-- incident CRUD for user and operator workflows
-- modular import pipeline for rail reference and journey datasets
-- analytics for route reliability, delay trends, hotspots, and delay reasons
+- admin-only write endpoints for station and route reference data
+- role-protected incident create/update/delete flows
+- modular import services for station, route, and journey datasets
+- analytics for route reliability, average delay, delay patterns, station hotspots, incident frequency, and common delay reasons
+- FastAPI Swagger docs at `/docs`
+- versioned Alembic migrations
+- pytest coverage for incident APIs, analytics, and import services
 
 ## Tech Stack
 
@@ -25,12 +30,146 @@ This repository will contain a modular `FastAPI` backend for UK rail reliability
 - Pydantic v2
 - Alembic
 - pytest
+- Uvicorn
 
-## Quick Start
+## Repository Layout
 
-1. Create a virtual environment.
-2. Install dependencies with `pip install -e ".[dev]"`.
-3. Copy values from `.env.example` into a local `.env`.
-4. Run the API with `uvicorn app.main:app --reload`.
+```text
+app/
+  core/        config, database, security
+  db/          SQLAlchemy base and model registration
+  models/      ORM models
+  routers/     API endpoint groups
+  schemas/     Pydantic request/response models
+  services/    analytics and import services
+alembic/       database migrations
+docs/          coursework-facing documentation
+scripts/       ingestion and utility scripts
+tests/         automated test suite
+```
 
-Detailed setup, migrations, import scripts, API usage, and coursework deliverables will be added as the project is implemented.
+## Setup
+
+1. Create a virtual environment:
+
+   ```bash
+   python -m venv .venv
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   ./.venv/bin/pip install -e ".[dev]"
+   ```
+
+3. Copy `.env.example` to `.env` and fill in local values:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+4. Create the PostgreSQL database referenced by `DATABASE_URL`.
+
+5. Run migrations:
+
+   ```bash
+   ./.venv/bin/alembic upgrade head
+   ```
+
+6. Start the API:
+
+   ```bash
+   ./.venv/bin/uvicorn app.main:app --reload
+   ```
+
+7. Open the interactive docs:
+
+   - Swagger UI: `http://127.0.0.1:8000/docs`
+   - ReDoc: `http://127.0.0.1:8000/redoc`
+
+## Environment Variables
+
+Minimum required variables are documented in `.env.example`:
+
+- `DATABASE_URL`
+- `DATABASE_ECHO`
+- `ADMIN_API_KEY`
+- `OPERATOR_API_KEY`
+- `USER_API_KEY`
+- optional rail-source settings for KB, Darwin, and HSP import workflows
+
+Do not commit real credentials. Keep only placeholder values in tracked files.
+
+## Authentication Model
+
+The coursework uses a deliberately simple role model based on the `X-API-Key` header:
+
+- admin key: full station and route writes, incident management
+- operator key: incident create/update/delete
+- user key: incident create only
+- no key required: public reads for stations, routes, incidents, and analytics
+
+Example authenticated request:
+
+```bash
+curl -H "X-API-Key: change-me-admin-key" http://127.0.0.1:8000/api/v1/stations
+```
+
+## Main Endpoint Groups
+
+- `GET /api/v1/stations`
+- `GET /api/v1/stations/{station_id}`
+- `POST/PATCH/DELETE /api/v1/stations/{station_id or collection}` admin only
+- `GET /api/v1/routes`
+- `GET /api/v1/routes/{route_id}`
+- `POST/PATCH/DELETE /api/v1/routes/{route_id or collection}` admin only
+- `GET /api/v1/incidents`
+- `GET /api/v1/incidents/{incident_id}`
+- `POST /api/v1/incidents` authenticated user, operator, or admin
+- `PATCH/DELETE /api/v1/incidents/{incident_id}` operator or admin
+- `GET /api/v1/analytics/routes/{route_id}/reliability`
+- `GET /api/v1/analytics/routes/{route_id}/average-delay`
+- `GET /api/v1/analytics/delay-patterns/hourly`
+- `GET /api/v1/analytics/delay-patterns/daily`
+- `GET /api/v1/analytics/stations/hotspots`
+- `GET /api/v1/analytics/incidents/frequency`
+- `GET /api/v1/analytics/delay-reasons/common`
+
+## Import Workflow
+
+Import order is important:
+
+1. import station reference data
+2. import or derive route reference data
+3. import journey history data
+
+Available helper scripts:
+
+- `python scripts/import_stations.py path/to/stations.csv`
+- `python scripts/import_routes.py path/to/routes.csv`
+- `python scripts/import_journeys.py path/to/journeys.xml`
+
+The import services support simplified `CSV`, `JSON`, and, for journeys, `XML` inputs. Journey imports normalize status values and derive `delay_minutes` during ingestion where possible.
+
+## Testing
+
+Run the automated tests with:
+
+```bash
+./.venv/bin/pytest
+```
+
+Current coverage focuses on:
+
+- incident API permissions and lifecycle behavior
+- analytics endpoint responses
+- station, route, and journey import logic
+
+## Coursework Deliverables
+
+- API documentation PDF: [`docs/api_documentation.pdf`](docs/api_documentation.pdf)
+- API documentation source: [`docs/api_documentation.md`](docs/api_documentation.md)
+- versioned source code with granular commit history
+- runnable backend with tests and migration support
+
+The technical report, GenAI declaration, conversation logs, and presentation slides can be added alongside this repository for final submission.
