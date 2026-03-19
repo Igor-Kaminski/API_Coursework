@@ -19,7 +19,8 @@ def test_build_import_bundle_from_snapshot_lines(tmp_path: Path) -> None:
     bundle = service.build_import_bundle(snapshot_path)
 
     assert len(bundle.station_records) == 2
-    assert {record.code for record in bundle.station_records} == {"WATRLMN", "EXETRSD"}
+    assert {record.tiploc_code for record in bundle.station_records} == {"WATRLMN", "EXETRSD"}
+    assert {record.code for record in bundle.station_records} == {None}
 
     assert len(bundle.route_records) == 1
     route = bundle.route_records[0]
