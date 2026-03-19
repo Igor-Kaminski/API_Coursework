@@ -4,8 +4,10 @@ import zipfile
 from io import BytesIO
 from urllib.request import Request, urlopen
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.models.station import Station
 from app.services.import_types import ImportResult, StationImportRecord
 from app.services.route_naming_service import RouteNamingService
 from app.services.station_import_service import StationImportService
@@ -31,7 +33,16 @@ class DTDReferenceService:
         db: Session,
         records: list[StationImportRecord],
     ) -> tuple[ImportResult, int]:
-        station_result = StationImportService().import_records(db, records)
+        existing_tiplocs = {
+            value
+            for value in db.scalars(select(Station.tiploc_code).where(Station.tiploc_code.is_not(None)))
+            if value
+        }
+        filtered_records = [
+            record for record in records if record.tiploc_code and record.tiploc_code in existing_tiplocs
+        ]
+
+        station_result = StationImportService().import_records(db, filtered_records)
         renamed_routes = RouteNamingService().refresh_route_names(db)
         return station_result, renamed_routes
 
