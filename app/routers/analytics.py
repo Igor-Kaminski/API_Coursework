@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db_session
@@ -29,6 +30,16 @@ def _require_route(db: Session, route_id: int) -> None:
         )
 
 
+def _get_route_by_code(db: Session, route_code: str) -> Route:
+    route = db.scalar(select(Route).where(Route.code == route_code))
+    if route is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="route not found",
+        )
+    return route
+
+
 @router.get("/routes/{route_id}/reliability", response_model=RouteReliabilityRead)
 def get_route_reliability(route_id: int, db: DBSession) -> RouteReliabilityRead:
     _require_route(db, route_id)
@@ -39,6 +50,18 @@ def get_route_reliability(route_id: int, db: DBSession) -> RouteReliabilityRead:
 def get_route_average_delay(route_id: int, db: DBSession) -> RouteAverageDelayRead:
     _require_route(db, route_id)
     return analytics_service.get_route_average_delay(db, route_id)
+
+
+@router.get("/routes/by-code/{route_code}/reliability", response_model=RouteReliabilityRead)
+def get_route_reliability_by_code(route_code: str, db: DBSession) -> RouteReliabilityRead:
+    route = _get_route_by_code(db, route_code)
+    return analytics_service.get_route_reliability(db, route.id)
+
+
+@router.get("/routes/by-code/{route_code}/average-delay", response_model=RouteAverageDelayRead)
+def get_route_average_delay_by_code(route_code: str, db: DBSession) -> RouteAverageDelayRead:
+    route = _get_route_by_code(db, route_code)
+    return analytics_service.get_route_average_delay(db, route.id)
 
 
 @router.get("/delay-patterns/hourly", response_model=list[DelayPatternPointRead])
