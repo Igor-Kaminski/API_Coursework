@@ -106,6 +106,8 @@ class KBStationEnrichmentService:
         tiploc_code = self._find_text(element, "tiploc", "tiploccode", "tiploc_code", "tpl")
         crs_code = self._find_text(element, "crs", "crscode", "crs_code", "threealphacode")
         city = self._find_text(element, "city", "locality", "localityname", "town")
+        if city is None:
+            city = self._infer_city_from_address_lines(element, station_name=name)
         latitude = self._find_decimal(element, "latitude", "lat")
         longitude = self._find_decimal(element, "longitude", "lon", "lng")
 
@@ -186,3 +188,39 @@ class KBStationEnrichmentService:
 
     def _local_name(self, tag: str) -> str:
         return tag.split("}", 1)[1] if "}" in tag else tag
+
+    def _infer_city_from_address_lines(self, element, station_name: str) -> str | None:
+        lines = []
+        for child in element.iter():
+            local_name = self._local_name(child.tag).lower()
+            if local_name != "line":
+                continue
+            text = (child.text or "").strip()
+            if not text or text == "-":
+                continue
+            lines.append(text)
+
+        return self._choose_city_from_lines(lines, station_name)
+
+    def _choose_city_from_lines(self, lines: list[str], station_name: str) -> str | None:
+        road_keywords = (
+            " road",
+            " street",
+            " avenue",
+            " approach",
+            " place",
+            " square",
+            " lane",
+            " drive",
+            " way",
+            " station",
+        )
+        station_name_lower = station_name.lower()
+        for line in lines:
+            lower = line.lower()
+            if station_name_lower in lower and "station" in lower:
+                continue
+            if any(keyword in lower for keyword in road_keywords):
+                continue
+            return line
+        return None

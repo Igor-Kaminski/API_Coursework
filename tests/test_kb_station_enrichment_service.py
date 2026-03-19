@@ -50,3 +50,30 @@ def test_kb_enrichment_updates_station_and_route_name(db_session) -> None:
     assert str(origin.longitude) == "-0.556900"
     assert renamed_routes == 1
     assert route.name == "Woking to EXETRSD"
+
+
+def test_kb_enrichment_can_infer_city_from_address_lines(db_session) -> None:
+    xml = """<?xml version="1.0" encoding="UTF-8"?>
+<Stations>
+  <Station>
+    <Name>Abbey Wood</Name>
+    <CrsCode>ABW</CrsCode>
+    <Address>
+      <PostalAddress>
+        <A_5LineAddress>
+          <Line>Abbey Wood station</Line>
+          <Line>Wilton Road</Line>
+          <Line>Abbey Wood</Line>
+          <Line>Greater London</Line>
+        </A_5LineAddress>
+      </PostalAddress>
+    </Address>
+  </Station>
+</Stations>
+"""
+
+    service = KBStationEnrichmentService()
+    records = service.load_records_from_bytes(xml.encode("utf-8"))
+
+    assert len(records) == 1
+    assert records[0].city == "Abbey Wood"
