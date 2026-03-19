@@ -45,6 +45,7 @@ class RouteImportService:
                     is_active=record.is_active,
                 )
                 db.add(route)
+                db.flush()
                 result.created += 1
                 continue
 

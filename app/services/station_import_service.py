@@ -32,6 +32,7 @@ class StationImportService:
                     longitude=record.longitude,
                 )
                 db.add(station)
+                db.flush()
                 result.created += 1
                 continue
 

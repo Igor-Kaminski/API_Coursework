@@ -46,6 +46,7 @@ class JourneyImportService:
                     external_service_id=record.external_service_id,
                 )
                 db.add(journey)
+                db.flush()
                 result.created += 1
                 continue
 
