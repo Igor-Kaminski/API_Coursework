@@ -116,6 +116,10 @@ class StationImportService:
         for incident in db.scalars(select(Incident).where(Incident.station_id == conflict.id)):
             incident.station_id = target_station.id
 
+        conflict.code = None
+        if hasattr(conflict, "crs_code"):
+            conflict.crs_code = None
+        db.flush()
         db.delete(conflict)
         db.flush()
 
