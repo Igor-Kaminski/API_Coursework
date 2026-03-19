@@ -4,7 +4,7 @@ from collections.abc import Iterable
 from decimal import Decimal
 from pathlib import Path
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 
 from app.models.incident import Incident
@@ -116,9 +116,11 @@ class StationImportService:
         for incident in db.scalars(select(Incident).where(Incident.station_id == conflict.id)):
             incident.station_id = target_station.id
 
-        conflict.code = None
-        if hasattr(conflict, "crs_code"):
-            conflict.crs_code = None
+        db.execute(
+            update(Station)
+            .where(Station.id == conflict.id)
+            .values(code=None, crs_code=None)
+        )
         db.flush()
         db.delete(conflict)
         db.flush()
