@@ -395,6 +395,8 @@ The API is hosted on Render at: https://rail-api-coursework.onrender.com/
 - Technical report: [`docs/technical_report.md`](docs/technical_report.md)
 - API documentation (PDF): [`docs/api_documentation.pdf`](docs/api_documentation.pdf)
 - API documentation (source): [`docs/api_documentation.md`](docs/api_documentation.md)
+- Presentation slides: [`docs/presentation.pptx`](docs/presentation.pptx)
 - GenAI conversation logs: [`docs/conversations/`](docs/conversations/)
+- SQL data dump: [`rail_data.sql`](rail_data.sql)
 - Versioned source code with granular commit history
 - Runnable backend with tests and migration support

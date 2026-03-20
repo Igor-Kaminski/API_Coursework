@@ -61,9 +61,9 @@ To manage context and token usage, the model was directed to delegate implementa
 ## Links
 
 - **GitHub Repository:** https://github.com/Igor-Kaminski/API_Coursework
-- **Live API:** https://rail-api-coursework.onrender.com/
+- **Live API:** https://rail-api-coursework.onrender.com/ *(hosted on Render's free tier — initial load may take up to 30 seconds if the service has spun down)*
 - **API Documentation (PDF):** https://github.com/Igor-Kaminski/API_Coursework/blob/main/docs/api_documentation.pdf
-- **Presentation Slides:** *(to be added)*
+- **Presentation Slides:** https://github.com/Igor-Kaminski/API_Coursework/blob/main/docs/presentation.pptx
 
 **GenAI Conversation Logs:**
 
