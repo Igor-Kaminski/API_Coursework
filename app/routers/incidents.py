@@ -6,7 +6,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db_session
-from app.core.errors import api_error, normalize_lookup_value, validate_datetime_range
+from app.core.errors import api_error, normalize_lookup_value, openapi_error_responses, validate_datetime_range
 from app.core.security import AuthContext, Role, require_roles
 from app.models.incident import Incident
 from app.models.route import Route
@@ -39,7 +39,7 @@ def validate_related_entities(db: Session, route_id: int | None, station_id: int
         raise api_error(status.HTTP_404_NOT_FOUND, "station not found")
 
 
-@router.get("", response_model=list[IncidentRead])
+@router.get("", response_model=list[IncidentRead], responses=openapi_error_responses(422))
 def list_incidents(
     db: DBSession,
     limit: int = Query(default=100, ge=1, le=500),
@@ -76,7 +76,7 @@ def list_incidents(
     return list(db.scalars(query))
 
 
-@router.get("/{incident_id}", response_model=IncidentRead)
+@router.get("/{incident_id}", response_model=IncidentRead, responses=openapi_error_responses(404))
 def get_incident(incident_id: int, db: DBSession) -> Incident:
     incident = db.get(Incident, incident_id)
     if incident is None:
@@ -84,7 +84,12 @@ def get_incident(incident_id: int, db: DBSession) -> Incident:
     return incident
 
 
-@router.post("", response_model=IncidentRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=IncidentRead,
+    status_code=status.HTTP_201_CREATED,
+    responses=openapi_error_responses(401, 403, 404, 422),
+)
 def create_incident(payload: IncidentCreate, db: DBSession, _: AuthenticatedRole) -> Incident:
     validate_related_entities(db, payload.route_id, payload.station_id)
 
@@ -95,7 +100,11 @@ def create_incident(payload: IncidentCreate, db: DBSession, _: AuthenticatedRole
     return incident
 
 
-@router.patch("/{incident_id}", response_model=IncidentRead)
+@router.patch(
+    "/{incident_id}",
+    response_model=IncidentRead,
+    responses=openapi_error_responses(401, 403, 404, 422),
+)
 def update_incident(
     incident_id: int,
     payload: IncidentUpdate,
@@ -117,7 +126,11 @@ def update_incident(
     return incident
 
 
-@router.delete("/{incident_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{incident_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses=openapi_error_responses(401, 403, 404),
+)
 def delete_incident(incident_id: int, db: DBSession, _: OperatorRole) -> Response:
     incident = db.get(Incident, incident_id)
     if incident is None:

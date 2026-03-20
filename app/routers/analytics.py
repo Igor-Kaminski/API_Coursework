@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db_session
-from app.core.errors import api_error, normalize_lookup_value, validate_limit
+from app.core.errors import api_error, normalize_lookup_value, openapi_error_responses, validate_limit
 from app.models.route import Route
 from app.schemas.analytics import (
     DelayPatternPointRead,
@@ -44,25 +44,25 @@ def _get_route_by_code(db: Session, route_code: str) -> Route:
     return route
 
 
-@router.get("/routes/{route_id}/reliability", response_model=RouteReliabilityRead)
+@router.get("/routes/{route_id}/reliability", response_model=RouteReliabilityRead, responses=openapi_error_responses(404))
 def get_route_reliability(route_id: int, db: DBSession) -> RouteReliabilityRead:
     _require_route(db, route_id)
     return analytics_service.get_route_reliability(db, route_id)
 
 
-@router.get("/routes/{route_id}/average-delay", response_model=RouteAverageDelayRead)
+@router.get("/routes/{route_id}/average-delay", response_model=RouteAverageDelayRead, responses=openapi_error_responses(404))
 def get_route_average_delay(route_id: int, db: DBSession) -> RouteAverageDelayRead:
     _require_route(db, route_id)
     return analytics_service.get_route_average_delay(db, route_id)
 
 
-@router.get("/routes/by-code/{route_code}/reliability", response_model=RouteReliabilityRead)
+@router.get("/routes/by-code/{route_code}/reliability", response_model=RouteReliabilityRead, responses=openapi_error_responses(404))
 def get_route_reliability_by_code(route_code: str, db: DBSession) -> RouteReliabilityRead:
     route = _get_route_by_code(db, route_code)
     return analytics_service.get_route_reliability(db, route.id)
 
 
-@router.get("/routes/by-code/{route_code}/average-delay", response_model=RouteAverageDelayRead)
+@router.get("/routes/by-code/{route_code}/average-delay", response_model=RouteAverageDelayRead, responses=openapi_error_responses(404))
 def get_route_average_delay_by_code(route_code: str, db: DBSession) -> RouteAverageDelayRead:
     route = _get_route_by_code(db, route_code)
     return analytics_service.get_route_average_delay(db, route.id)
@@ -71,6 +71,7 @@ def get_route_average_delay_by_code(route_code: str, db: DBSession) -> RouteAver
 @router.get(
     "/routes/{route_id}/cancellation-rate",
     response_model=RouteCancellationRateRead,
+    responses=openapi_error_responses(404),
 )
 def get_route_cancellation_rate(route_id: int, db: DBSession) -> RouteCancellationRateRead:
     _require_route(db, route_id)
@@ -80,6 +81,7 @@ def get_route_cancellation_rate(route_id: int, db: DBSession) -> RouteCancellati
 @router.get(
     "/routes/by-code/{route_code}/cancellation-rate",
     response_model=RouteCancellationRateRead,
+    responses=openapi_error_responses(404),
 )
 def get_route_cancellation_rate_by_code(
     route_code: str,
@@ -92,6 +94,7 @@ def get_route_cancellation_rate_by_code(
 @router.get(
     "/routes/{route_id}/delay-distribution",
     response_model=RouteDelayDistributionRead,
+    responses=openapi_error_responses(404),
 )
 def get_route_delay_distribution(route_id: int, db: DBSession) -> RouteDelayDistributionRead:
     _require_route(db, route_id)
@@ -101,6 +104,7 @@ def get_route_delay_distribution(route_id: int, db: DBSession) -> RouteDelayDist
 @router.get(
     "/routes/by-code/{route_code}/delay-distribution",
     response_model=RouteDelayDistributionRead,
+    responses=openapi_error_responses(404),
 )
 def get_route_delay_distribution_by_code(
     route_code: str,

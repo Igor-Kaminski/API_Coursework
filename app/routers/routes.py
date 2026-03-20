@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, aliased, joinedload
 
 from app.core.database import get_db_session
-from app.core.errors import api_error, normalize_lookup_value
+from app.core.errors import api_error, normalize_lookup_value, openapi_error_responses
 from app.core.security import AuthContext, Role, require_roles
 from app.models.incident import Incident
 from app.models.journey_record import JourneyRecord
@@ -27,7 +27,7 @@ def validate_station_ids(db: Session, origin_station_id: int, destination_statio
         raise api_error(status.HTTP_404_NOT_FOUND, "destination station not found")
 
 
-@router.get("", response_model=list[RouteRead])
+@router.get("", response_model=list[RouteRead], responses=openapi_error_responses(422))
 def list_routes(
     db: DBSession,
     limit: int = Query(default=100, ge=1, le=500),
@@ -82,7 +82,7 @@ def list_routes(
     return list(db.scalars(query))
 
 
-@router.get("/code/{route_code}", response_model=RouteRead)
+@router.get("/code/{route_code}", response_model=RouteRead, responses=openapi_error_responses(404))
 def get_route_by_code(route_code: str, db: DBSession) -> Route:
     route_code = normalize_lookup_value(route_code)
     if route_code is None:
@@ -102,7 +102,7 @@ def get_route_by_code(route_code: str, db: DBSession) -> Route:
     return route
 
 
-@router.get("/{route_id}", response_model=RouteRead)
+@router.get("/{route_id}", response_model=RouteRead, responses=openapi_error_responses(404))
 def get_route(route_id: int, db: DBSession) -> Route:
     query = (
         select(Route)
@@ -118,7 +118,12 @@ def get_route(route_id: int, db: DBSession) -> Route:
     return route
 
 
-@router.post("", response_model=RouteRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=RouteRead,
+    status_code=status.HTTP_201_CREATED,
+    responses=openapi_error_responses(401, 403, 404, 409, 422),
+)
 def create_route(payload: RouteCreate, db: DBSession, _: AdminRole) -> Route:
     validate_station_ids(db, payload.origin_station_id, payload.destination_station_id)
 
@@ -139,7 +144,11 @@ def create_route(payload: RouteCreate, db: DBSession, _: AdminRole) -> Route:
     return refreshed
 
 
-@router.patch("/{route_id}", response_model=RouteRead)
+@router.patch(
+    "/{route_id}",
+    response_model=RouteRead,
+    responses=openapi_error_responses(401, 403, 404, 409, 422),
+)
 def update_route(
     route_id: int,
     payload: RouteUpdate,
@@ -170,7 +179,11 @@ def update_route(
     return refreshed
 
 
-@router.delete("/{route_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{route_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses=openapi_error_responses(401, 403, 404, 409),
+)
 def delete_route(route_id: int, db: DBSession, _: AdminRole) -> Response:
     route = db.get(Route, route_id)
     if route is None:

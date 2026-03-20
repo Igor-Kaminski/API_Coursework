@@ -3,7 +3,8 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import Annotated
 
-from fastapi import Depends, Header, status
+from fastapi import Depends, status
+from fastapi.security import APIKeyHeader
 
 from app.core.config import get_settings
 from app.core.errors import api_error
@@ -20,6 +21,18 @@ class AuthContext:
     role: Role
 
 
+api_key_scheme = APIKeyHeader(
+    name="X-API-Key",
+    description=(
+        "API key passed in the `X-API-Key` header. "
+        "Three roles are supported: `admin` (full access), "
+        "`operator` (manage incidents), `user` (create incidents). "
+        "Public read endpoints do not require a key."
+    ),
+    auto_error=False,
+)
+
+
 def _role_lookup() -> dict[str, Role]:
     settings = get_settings()
     return {
@@ -30,7 +43,7 @@ def _role_lookup() -> dict[str, Role]:
 
 
 def get_auth_context(
-    x_api_key: Annotated[str | None, Header(alias="X-API-Key")] = None,
+    x_api_key: Annotated[str | None, Depends(api_key_scheme)] = None,
 ) -> AuthContext:
     if x_api_key is None:
         raise api_error(status.HTTP_401_UNAUTHORIZED, "missing X-API-Key header")

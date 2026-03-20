@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db_session
-from app.core.errors import api_error, normalize_lookup_value
+from app.core.errors import api_error, normalize_lookup_value, openapi_error_responses
 from app.core.security import AuthContext, Role, require_roles
 from app.models.incident import Incident
 from app.models.route import Route
@@ -18,7 +18,7 @@ DBSession = Annotated[Session, Depends(get_db_session)]
 AdminRole = Annotated[AuthContext, Depends(require_roles(Role.ADMIN))]
 
 
-@router.get("", response_model=list[StationRead])
+@router.get("", response_model=list[StationRead], responses=openapi_error_responses(422))
 def list_stations(
     db: DBSession,
     limit: int = Query(default=100, ge=1, le=500),
@@ -50,7 +50,7 @@ def list_stations(
     return list(db.scalars(query))
 
 
-@router.get("/code/{station_code}", response_model=StationRead)
+@router.get("/code/{station_code}", response_model=StationRead, responses=openapi_error_responses(404))
 def get_station_by_code(station_code: str, db: DBSession) -> Station:
     station_code = normalize_lookup_value(station_code)
     if station_code is None:
@@ -62,7 +62,7 @@ def get_station_by_code(station_code: str, db: DBSession) -> Station:
     return station
 
 
-@router.get("/{station_id}", response_model=StationRead)
+@router.get("/{station_id}", response_model=StationRead, responses=openapi_error_responses(404))
 def get_station(station_id: int, db: DBSession) -> Station:
     station = db.get(Station, station_id)
     if station is None:
@@ -70,7 +70,12 @@ def get_station(station_id: int, db: DBSession) -> Station:
     return station
 
 
-@router.post("", response_model=StationRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=StationRead,
+    status_code=status.HTTP_201_CREATED,
+    responses=openapi_error_responses(401, 403, 409, 422),
+)
 def create_station(payload: StationCreate, db: DBSession, _: AdminRole) -> Station:
     station = Station(**payload.model_dump())
     db.add(station)
@@ -87,7 +92,11 @@ def create_station(payload: StationCreate, db: DBSession, _: AdminRole) -> Stati
     return station
 
 
-@router.patch("/{station_id}", response_model=StationRead)
+@router.patch(
+    "/{station_id}",
+    response_model=StationRead,
+    responses=openapi_error_responses(401, 403, 404, 409, 422),
+)
 def update_station(
     station_id: int,
     payload: StationUpdate,
@@ -114,7 +123,11 @@ def update_station(
     return station
 
 
-@router.delete("/{station_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{station_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses=openapi_error_responses(401, 403, 404, 409),
+)
 def delete_station(station_id: int, db: DBSession, _: AdminRole) -> Response:
     station = db.get(Station, station_id)
     if station is None:

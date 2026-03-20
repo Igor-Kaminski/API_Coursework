@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Literal
 
-from pydantic import Field, model_validator
+from pydantic import ConfigDict, Field, model_validator
 
 from app.schemas.common import ORMModel, TimestampedResponse
 
@@ -27,10 +27,32 @@ class IncidentBase(ORMModel):
 
 
 class IncidentCreate(IncidentBase):
-    pass
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "route_id": 1,
+                "station_id": None,
+                "title": "Signalling failure between Reading and Swindon",
+                "description": "A signalling fault is causing delays of up to 30 minutes on this route.",
+                "incident_type": "signalling_failure",
+                "severity": "high",
+                "status": "open",
+                "reported_at": "2024-11-15T08:30:00Z",
+            }
+        }
+    )
 
 
 class IncidentUpdate(ORMModel):
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "status": "resolved",
+                "severity": "low",
+            }
+        }
+    )
+
     route_id: int | None = None
     station_id: int | None = None
     title: str | None = Field(default=None, min_length=1, max_length=255)

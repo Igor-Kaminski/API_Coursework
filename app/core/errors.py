@@ -76,6 +76,30 @@ def api_error(
     return HTTPException(status_code=status_code, detail=detail)
 
 
+_ERROR_DESCRIPTIONS = {
+    400: "Bad request",
+    401: "Missing or invalid API key",
+    403: "Insufficient permissions for this operation",
+    404: "Resource not found",
+    409: "Conflict with existing resource",
+    422: "Request validation failed",
+    429: "Rate limit exceeded",
+    500: "Internal server error",
+    503: "Service unavailable",
+}
+
+
+def openapi_error_responses(*status_codes: int) -> dict[int, dict[str, Any]]:
+    """Return a responses dict for use in FastAPI route decorators."""
+    return {
+        code: {
+            "model": ErrorResponse,
+            "description": _ERROR_DESCRIPTIONS.get(code, "Error"),
+        }
+        for code in status_codes
+    }
+
+
 def normalize_lookup_value(value: str | None) -> str | None:
     if value is None:
         return None
