@@ -22,7 +22,7 @@ As an advanced extension, an `MCP` server was implemented over the same database
 
 The database centres on four core entities: `Station`, `Route`, `JourneyRecord`, and `Incident`. `Station` stores location metadata and business identifiers such as station code, CRS code, and TIPLOC code — both CRS and TIPLOC are standard industry identifiers used to uniquely reference stations across National Rail systems. `Route` links origin and destination stations and stores route-level metadata such as operator name and approximate distance. `JourneyRecord` stores imported operational timing data, including scheduled and actual times, status, delay minutes, source, and external identifiers. `Incident` stores user-generated disruptions and service issues.
 
-The ingestion strategy was designed around an important principle: external feeds should be data sources, not runtime dependencies for public endpoints. The API does not call Darwin or KnowledgeBase during ordinary user requests. Instead, data is fetched and loaded by import scripts, normalised into the relational schema, and then queried locally through the API. This makes analytical endpoints faster, more consistent, and easier to demonstrate.
+The data was sourced from the National Rail Data Portal [1], specifically the Darwin Push Port real-time feed and the KnowledgeBase reference API. The ingestion strategy was designed around an important principle: external feeds should be data sources, not runtime dependencies for public endpoints. The API does not call Darwin or KnowledgeBase during ordinary user requests. Instead, data is fetched and loaded by import scripts, normalised into the relational schema, and then queried locally through the API. This makes analytical endpoints faster, more consistent, and easier to demonstrate.
 
 Darwin-derived data forms the main operational history source, while KnowledgeBase reference data improves station and route readability. In practice, this involved handling real-world data problems such as code aliases, incomplete location metadata, route duplication, and unresolved timing points, which led to additional merge and deduplication logic in the import process. At the time of writing, the local dataset contains approximately `2,993` stations, `2,899` routes, and `18,588` journey records, which is sufficient to support meaningful analytics and live demonstration.
 
@@ -42,7 +42,7 @@ Security is intentionally basic but not absent. The application includes API-key
 
 Testing was carried out using `pytest` with isolated database fixtures and targeted API and service tests. The suite covers incident permissions, station and route lookup behaviour, analytics endpoints, security features, error handling, import services, Darwin snapshot parsing, and MCP functionality. Coverage reporting was added with `pytest-cov`, and the project currently reports roughly `81%` line coverage across the `app` package. This does not guarantee every path is correct, but it provides strong evidence that the most important behaviour is exercised automatically.
 
-The project is deployable on Render using a `render.yaml` blueprint for both the web service and PostgreSQL database. One practical lesson from deployment is that schema creation and data population are separate concerns: migrations can initialise an empty hosted database, but imported operational data must still be copied or re-imported before live analytics become meaningful.
+The project is deployed on Render using a `render.yaml` blueprint for both the web service and PostgreSQL database, and is accessible at `https://rail-api-coursework.onrender.com/`. One practical lesson from deployment is that schema creation and data population are separate concerns: migrations can initialise an empty hosted database, but imported operational data must still be copied or re-imported before live analytics become meaningful.
 
 ## 6. Reflection, Limitations, and Future Work
 
@@ -57,3 +57,39 @@ A significant limitation is that the dataset covers a relatively short time wind
 Generative AI was used extensively throughout the project. After reading the project brief, the PDF was provided to ChatGPT to explore key decisions, such as why FastAPI was preferable to Django or why PostgreSQL was preferable to SQLite. The initial requirements and core architectural decisions were established through this process. A detailed prompt covering all aspects of the project was then constructed and provided to Cursor in planning mode in a new conversation to preserve context. Cursor, using GPT 5.4 Codex, built the project incrementally, requesting clarification where judgment or additional information was needed, and exploring alternative decisions and refinements along the way.
 
 To manage context and token usage, the model was directed to delegate implementation tasks to sub-agents, acting itself as a coordinator with full project context while sub-agents handled discrete tasks. Generative AI wrote the majority of the project code, with decisions reviewed and approved throughout. The technical report and presentation were also produced collaboratively with generative AI, with a final pass to improve grammar, structure, and formality.
+
+## Links
+
+- **GitHub Repository:** https://github.com/Igor-Kaminski/API_Coursework
+- **Live API:** https://rail-api-coursework.onrender.com/
+- **API Documentation (PDF):** https://github.com/Igor-Kaminski/API_Coursework/blob/main/docs/api_documentation.pdf
+- **Presentation Slides:** *(to be added)*
+
+**GenAI Conversation Logs:**
+
+- https://chatgpt.com/share/69bdc8a7-8cd0-8000-b258-d567d71e2848
+- https://chatgpt.com/share/69bdc948-d6d4-8000-8890-2f85f2ad9fd2
+- https://chatgpt.com/share/69bdc96a-4cdc-8000-828a-2d2bc0a3830a
+- https://chatgpt.com/share/69bdc9e3-c428-8000-8953-bfda65a6537e
+- https://chatgpt.com/share/69bdc9f4-7ae0-8000-b5d8-7664ea8c3511
+- https://chatgpt.com/share/69bdca05-8e14-8000-8be6-41dce66715d5
+- https://chatgpt.com/share/69bdca27-a94c-8000-98e9-e5d64dd7e7d7
+- Cursor conversation exports: https://github.com/Igor-Kaminski/API_Coursework/tree/main/docs/conversations
+
+## References
+
+[1] National Rail Data Portal — https://datafeeds.nationalrail.co.uk/
+
+[2] FastAPI — https://fastapi.tiangolo.com/
+
+[3] SQLAlchemy 2.0 — https://docs.sqlalchemy.org/en/20/
+
+[4] Pydantic v2 — https://docs.pydantic.dev/latest/
+
+[5] Alembic — https://alembic.sqlalchemy.org/
+
+[6] PostgreSQL — https://www.postgresql.org/
+
+[7] slowapi — https://github.com/laurentS/slowapi
+
+[8] Model Context Protocol (MCP) — https://modelcontextprotocol.io/

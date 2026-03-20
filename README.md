@@ -50,50 +50,118 @@ scripts/       ingestion and utility scripts
 tests/         automated test suite
 ```
 
-## Setup
+## Quick Access (No Installation Required)
 
-1. Create a virtual environment:
+The API is deployed and accessible at: https://rail-api-coursework.onrender.com/
+
+- Swagger UI (interactive docs): https://rail-api-coursework.onrender.com/docs
+- Health check: https://rail-api-coursework.onrender.com/health
+
+All public read endpoints and analytics can be tested directly from the Swagger page without any local setup.
+
+## Local Setup
+
+### Prerequisites
+
+- Python 3.11+
+- PostgreSQL (any recent version)
+
+### Linux / macOS
+
+1. Create and activate a virtual environment:
 
    ```bash
    python -m venv .venv
+   source .venv/bin/activate
    ```
 
 2. Install dependencies:
 
    ```bash
-   ./.venv/bin/pip install -e ".[dev]"
+   pip install -e '.[dev]'
    ```
 
-3. Copy `.env.example` to `.env` and fill in local values:
+3. Copy `.env.example` to `.env`:
 
    ```bash
    cp .env.example .env
    ```
 
-4. Create the PostgreSQL database referenced by `DATABASE_URL`.
-
-5. Run migrations:
+4. Start PostgreSQL and create the database:
 
    ```bash
-   ./.venv/bin/alembic upgrade head
+   # Linux (systemd)
+   sudo systemctl start postgresql
+   sudo -u postgres createdb rail_api
+
+   # macOS (Homebrew)
+   brew services start postgresql
+   createdb rail_api
    ```
 
-6. Start the API:
+5. Run migrations and start the API:
 
    ```bash
-   ./.venv/bin/uvicorn app.main:app --reload
+   alembic upgrade head
+   uvicorn app.main:app --reload
    ```
 
-7. Open the interactive docs:
+### Windows
 
-   - Swagger UI: `http://127.0.0.1:8000/docs`
-   - ReDoc: `http://127.0.0.1:8000/redoc`
+1. Create and activate a virtual environment:
 
-8. Run the MCP server when you want model-tool access over the same database:
-
-   ```bash
-   ./.venv/bin/python scripts/run_mcp_server.py
+   ```powershell
+   python -m venv .venv
+   .\.venv\Scripts\Activate.ps1
    ```
+
+2. Install dependencies:
+
+   ```powershell
+   pip install -e ".[dev]"
+   ```
+
+3. Copy `.env.example` to `.env`:
+
+   ```powershell
+   copy .env.example .env
+   ```
+
+4. Install PostgreSQL from https://www.postgresql.org/download/windows/ if not already installed. Then open a terminal and create the database:
+
+   ```powershell
+   createdb -U postgres rail_api
+   ```
+
+5. Run migrations and start the API:
+
+   ```powershell
+   alembic upgrade head
+   uvicorn app.main:app --reload
+   ```
+
+### After starting
+
+- Swagger UI: http://127.0.0.1:8000/docs
+- ReDoc: http://127.0.0.1:8000/redoc
+
+The default `DATABASE_URL` in `.env.example` expects a database called `rail_api` on `localhost:5432` with user `postgres` and password `postgres`. If your local PostgreSQL uses a different user, password, or port, update `DATABASE_URL` in your `.env` accordingly.
+
+### Optional: Load data from SQL dump
+
+To populate the local database with the full dataset (stations, routes, journey records) without running import scripts:
+
+```bash
+psql -U postgres rail_api < rail_data.sql
+```
+
+### MCP Server
+
+Run the MCP server for model-tool access over the same database:
+
+```bash
+python scripts/run_mcp_server.py
+```
 
 ## Environment Variables
 
@@ -315,11 +383,18 @@ Current coverage focuses on:
 - analytics endpoint responses
 - station, route, journey, Darwin snapshot, KB enrichment, and reference-data enrichment logic
 
+## Live Deployment
+
+The API is hosted on Render at: https://rail-api-coursework.onrender.com/
+
+- Swagger UI: https://rail-api-coursework.onrender.com/docs
+- Health check: https://rail-api-coursework.onrender.com/health
+
 ## Coursework Deliverables
 
-- API documentation PDF: [`docs/api_documentation.pdf`](docs/api_documentation.pdf)
-- API documentation source: [`docs/api_documentation.md`](docs/api_documentation.md)
-- versioned source code with granular commit history
-- runnable backend with tests and migration support
-
-The technical report, GenAI declaration, conversation logs, and presentation slides can be added alongside this repository for final submission.
+- Technical report: [`docs/technical_report.md`](docs/technical_report.md)
+- API documentation (PDF): [`docs/api_documentation.pdf`](docs/api_documentation.pdf)
+- API documentation (source): [`docs/api_documentation.md`](docs/api_documentation.md)
+- GenAI conversation logs: [`docs/conversations/`](docs/conversations/)
+- Versioned source code with granular commit history
+- Runnable backend with tests and migration support
